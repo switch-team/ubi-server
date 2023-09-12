@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
-class AuthController(service: AuthService) {
+class AuthController(service: AuthService, ) {
     @PostMapping("/login")
-    fun Login(request: LoginRequest) {
+    fun login(request: LoginRequest) {
 
     }
     @PostMapping("/register")
-    fun Register(request: RegisterRequest) {
+    fun register(request: RegisterRequest) {
 
     }
 }
