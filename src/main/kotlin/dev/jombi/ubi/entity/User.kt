@@ -9,12 +9,12 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID,
-    @Column(name = "phone", length = 25)
+    @Column(name = "phone", length = 25, nullable = false)
     val phone: String,
-    @Column(name = "email", length = 64)
+    @Column(name = "email", length = 64, nullable = false)
     val email: String,
-    @Column(name = "password", length = 256) // sha-256 encrypted
+    @Column(name = "password", length = 256, nullable = false) // sha-256 encrypted
     val password: String,
-    @Column(name = "username", length = 24)
+    @Column(name = "username", length = 24, nullable = false)
     val name: String
 )
