@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class FriendService(val repository: UserRepository) {
     fun find(phone: String): FriendFindResponse? {
-        val result = repository.findUserByPhone(phone)
+        val result = repository.getUserByPhone(phone)
         if (result != null) {
             return FriendFindResponse(id = result.id, name = result.name)
         }
