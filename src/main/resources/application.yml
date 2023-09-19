@@ -4,8 +4,13 @@ spring:
     url: jdbc:mariadb://localhost:3306/ubi
     username: root
     password: ${DATASOURCE_PASSWORD}
-
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
 jwt:
   header: Authorization
   secret: U3dpdGNoIFRlYW0gaGFzIGZpdmUgdGVhbSBtZW1iZXIuIE5hbWVkICdMZWUgSmluc2lrJywgJ01vb24gR2FpbicsICdQYXJrIEp1bmh5dW4nLCAnTGltIEdldW0nLCAnUGFyayBKdXllb25nJy4=
   token-expires-at: 14515200
+server:
+  port: 8080

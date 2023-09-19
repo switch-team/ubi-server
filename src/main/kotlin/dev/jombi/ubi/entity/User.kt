@@ -16,5 +16,7 @@ data class User(
     @Column(name = "password", length = 256, nullable = false) // sha-256 encrypted
     val password: String,
     @Column(name = "username", length = 24, nullable = false)
-    val name: String
+    val name: String,
+    @ManyToMany
+    val friend: List<User?>
 )
