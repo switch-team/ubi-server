@@ -2,7 +2,6 @@ package dev.jombi.ubi.service
 
 import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.UserRepository
-import dev.jombi.ubi.util.SHA512
 import dev.jombi.ubi.util.jwt.TokenFactory
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
@@ -18,6 +17,7 @@ class AuthService(
     private val userRepository: UserRepository,
     private val token: TokenFactory,
     private val authBuilder: AuthenticationManagerBuilder,
+    private val encoder: PasswordEncoder,
 ) {
     fun authenticate(phoneOrEmail: String, password: String): String {
         val user = (
@@ -25,11 +25,12 @@ class AuthService(
                 else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
                 ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
 
-        if (SHA512.encrypt(password) != user.password)
+
+        if (!encoder.matches(password, user.password))
             throw CustomError(ErrorDetail.INCORRECT_PASSWORD)
 
         val auth =
-            authBuilder.`object`.authenticate(UsernamePasswordAuthenticationToken("${user.id}", user.password))
+            authBuilder.`object`.authenticate(UsernamePasswordAuthenticationToken("${user.id}", password))
         SecurityContextHolder.getContext().authentication = auth
         return token.createToken(auth)
     }
@@ -39,7 +40,8 @@ class AuthService(
         userRepository.getUserByEmail(email)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
         userRepository.getUserByPhone(phone)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
 
-        val passHashed = SHA512.encrypt(password)
+        val passHashed = encoder.encode(password)
+
         val user = User(phone = phone, email = email, name = name, password = passHashed)
         userRepository.save(user)
     }

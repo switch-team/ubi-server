@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class UserDetailsServiceImpl(private val userRepository: UserRepository, private val enc: PasswordEncoder) :
+class UserDetailsServiceImpl(private val userRepository: UserRepository) :
     UserDetailsService {
     override fun loadUserByUsername(uuid: String): UserDetails {
         val user = userRepository.findUserById(UUID.fromString(uuid))
@@ -20,7 +20,7 @@ class UserDetailsServiceImpl(private val userRepository: UserRepository, private
 
         return User(
             "${user.id}",
-            enc.encode(user.password), // FIXME: this is wrong i guess
+            user.password,
             user.authorities.map { SimpleGrantedAuthority(it.authorityName) })
     }
 }

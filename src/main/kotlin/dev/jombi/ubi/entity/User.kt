@@ -14,7 +14,7 @@ data class User(
     val phone: String,
     @Column(name = "email", length = 64, nullable = false)
     val email: String,
-    @Column(name = "password", length = 512, nullable = false) // sha-512 encrypted
+    @Column(name = "password", length = 60, nullable = false) // sha-512 encrypted
     val password: String,
     @Column(name = "username", length = 24, nullable = false)
     val name: String,
