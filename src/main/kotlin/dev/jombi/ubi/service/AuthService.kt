@@ -6,33 +6,36 @@ import dev.jombi.ubi.util.SHA512
 import dev.jombi.ubi.util.jwt.TokenFactory
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class AuthService(
     private val userRepository: UserRepository,
     private val token: TokenFactory,
-    private val authBuilder: AuthenticationManagerBuilder
+    private val authBuilder: AuthenticationManagerBuilder,
 ) {
     fun authenticate(phoneOrEmail: String, password: String): String {
         val user = (
                 if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
-                else userRepository.getUserByPhone(phoneOrEmail)
+                else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
                 ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
 
-        if (user.password != SHA512.encrypt(password))
+        if (SHA512.encrypt(password) != user.password)
             throw CustomError(ErrorDetail.INCORRECT_PASSWORD)
 
         val auth =
-            authBuilder.`object`.authenticate(UsernamePasswordAuthenticationToken(user.id.toString(), user.password))
+            authBuilder.`object`.authenticate(UsernamePasswordAuthenticationToken("${user.id}", user.password))
         SecurityContextHolder.getContext().authentication = auth
         return token.createToken(auth)
     }
 
-    fun registerNew(name: String, email: String, phone: String, password: String) {
+    fun registerNew(name: String, email: String, phoneWithDash: String, password: String) {
+        val phone = phoneWithDash.replace("-", "")
         userRepository.getUserByEmail(email)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
         userRepository.getUserByPhone(phone)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
 

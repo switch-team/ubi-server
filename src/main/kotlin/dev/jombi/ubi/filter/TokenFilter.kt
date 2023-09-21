@@ -1,5 +1,7 @@
-package dev.jombi.ubi.util.jwt
+package dev.jombi.ubi.filter
 
+import dev.jombi.ubi.util.jwt.TokenFactory
+import dev.jombi.ubi.util.response.CustomError
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -25,9 +27,13 @@ class TokenFilter(private val tokenFactory: TokenFactory) : GenericFilterBean() 
     }
 
     private fun extractToken(request: HttpServletRequest): String? {
-        val header = request.getHeader("Authorization")
-        if (header.isNotBlank() && header.lowercase().startsWith("bearer "))
-            return header.drop(7)
+        try {
+            val header = request.getHeader("Authorization")
+            if (header.isNotBlank() && header.lowercase().startsWith("bearer "))
+                return header.drop(7)
+        } catch (e: Exception) {
+            //
+        }
         return null
     }
 }
