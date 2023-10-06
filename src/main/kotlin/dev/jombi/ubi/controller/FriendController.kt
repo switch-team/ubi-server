@@ -11,6 +11,7 @@ import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -72,6 +73,14 @@ class FriendController(val service: FriendService, val userService: UserService)
         val invitedUser = userService.getUserByPhoneOrEmail(request.id)
         val user = userService.getUserById(UUID.fromString(auth.name))
         service.rejectInviteFriend(invitedUser, user)
+        return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
+    }
+
+    @DeleteMapping("/delete")
+    fun delete(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+        val deleteFriend = userService.getUserByPhoneOrEmail(request.id)
+        val user = userService.getUserById(UUID.fromString(auth.name))
+        service.deleteFriend(deleteFriend, user)
         return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
     }
 //    @PostMapping("/invite")

@@ -70,6 +70,17 @@ class FriendService(val userRepository: UserRepository) {
         }
     }
 
+    fun deleteFriend(deleteFriend: User, user: User) {
+        if (deleteFriend.friend.contains(user)) {
+            deleteFriend.friend.remove(user)
+            user.friend.remove(deleteFriend)
+            userRepository.save(deleteFriend)
+            userRepository.save(user)
+        } else {
+            throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
+        }
+    }
+
 //    fun inviteFriend(invitedUser: User, user: User) {
 //        invitedUser.waitFriends.add(user)
 //        user.invitedFriends.add(invitedUser)
