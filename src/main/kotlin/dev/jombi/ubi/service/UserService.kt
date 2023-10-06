@@ -6,6 +6,7 @@ import dev.jombi.ubi.repository.UserRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
 import org.springframework.stereotype.Service
+import java.lang.RuntimeException
 import java.util.UUID
 
 @Service
@@ -17,5 +18,19 @@ class UserService(private val userRepository: UserRepository) {
 
     fun verifyUserExists(uuid: UUID): Boolean {
         return userRepository.existsById(uuid)
+    }
+
+
+    fun getUserById(id: UUID): User {
+        val user = userRepository.findUserById(id) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+        return user
+    }
+
+    fun getUserByPhoneOrEmail(phoneOrEmail: String): User {
+        val user = (
+                if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
+                else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
+                ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+        return user
     }
 }

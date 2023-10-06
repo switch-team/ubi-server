@@ -26,7 +26,7 @@ class AuthController(private val service: AuthService) {
         service.registerNew(
             name = request.name,
             email = request.email,
-            phoneWithDash = request.number,
+            phoneWithDash = request.phone,
             password = request.password
         )
         return ResponseEntity.ok(GuidedResponseBuilder { message = "Created." }.noData())
