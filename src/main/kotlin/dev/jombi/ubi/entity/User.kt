@@ -30,32 +30,6 @@ data class User(
     )
     val authorities: Set<Authority> = emptySet(),
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "friend",
-        joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "also_user_id", referencedColumnName = "user_id")]
-    )
-    val friend: MutableList<User> = mutableListOf(),
-
-    //내가 친추 보낸거
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "invite",
-        joinColumns = [JoinColumn(name = "sender_id", referencedColumnName = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "receiver_id", referencedColumnName = "user_id")]
-    )
-    val invite: MutableList<User> = mutableListOf(),
-
-    //내가 친추 받은거
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "receive",
-        joinColumns = [JoinColumn(name = "sender_id", referencedColumnName = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "receiver_id", referencedColumnName = "user_id")]
-    )
-    val receive: MutableList<User> = mutableListOf()
-
 //    //내가 친추 받은거
 //    @ManyToMany(fetch = FetchType.LAZY)
 //    @JoinTable(

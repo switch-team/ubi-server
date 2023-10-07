@@ -5,8 +5,6 @@ import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.dto.response.UserListResponse
 import dev.jombi.ubi.service.FriendService
 import dev.jombi.ubi.service.UserService
-import dev.jombi.ubi.util.response.CustomError
-import dev.jombi.ubi.util.response.ErrorDetail
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import org.springframework.http.ResponseEntity
@@ -23,12 +21,6 @@ import java.util.UUID
 @RestController
 @RequestMapping("/friend")
 class FriendController(val service: FriendService, val userService: UserService) {
-    @GetMapping("/find-user")
-    fun find(@RequestParam("id") request: String): ResponseEntity<GuidedResponse<UserIdAndNameResponse>> {
-        val result = service.findUser(request)
-        return ResponseEntity.ok(GuidedResponseBuilder { message = "found" }.build(result))
-    }
-
     @GetMapping("/list")
     fun list(auth: Authentication): ResponseEntity<GuidedResponse<UserListResponse>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
@@ -64,7 +56,7 @@ class FriendController(val service: FriendService, val userService: UserService)
     fun accept(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
         val invitedUser = userService.getUserByPhoneOrEmail(request.id)
         val user = userService.getUserById(UUID.fromString(auth.name))
-        service.acceptInviteFriend(invitedUser, user)
+        service.acceptFriendRequest(invitedUser, user)
         return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
     }
 
@@ -72,7 +64,7 @@ class FriendController(val service: FriendService, val userService: UserService)
     fun reject(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
         val invitedUser = userService.getUserByPhoneOrEmail(request.id)
         val user = userService.getUserById(UUID.fromString(auth.name))
-        service.rejectInviteFriend(invitedUser, user)
+        service.deleteFriend(invitedUser, user)
         return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
     }
 

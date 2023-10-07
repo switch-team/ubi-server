@@ -2,96 +2,62 @@ package dev.jombi.ubi.service;
 
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.dto.response.UserListResponse
+import dev.jombi.ubi.entity.Friend
 import dev.jombi.ubi.entity.User
+import dev.jombi.ubi.repository.FriendRepository
 import dev.jombi.ubi.repository.UserRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
+import dev.jombi.ubi.util.state.FriendState
 import org.springframework.stereotype.Service
 
 @Service
-class FriendService(val userRepository: UserRepository) {
-    fun findUser(phoneOrEmail: String): UserIdAndNameResponse {
-        val user = (
-                if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
-                else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
-                ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
-        return UserIdAndNameResponse(id = user.phone, name = user.name)
-    }
-
+class FriendService(val userRepository: UserRepository, val friendRepo: FriendRepository) {
     fun getFriendList(user: User): UserListResponse {
-        if (user.friend.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
-        return UserListResponse(user.friend.map { UserIdAndNameResponse(it.phone, it.name) })
+        val users = friendRepo.findUsersByUser(user)
+        if (users.isEmpty())
+            throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
+        val userMapNotMe = users.map { if (it.sender == user) it.receiver else it.sender }
+        // 나를 제외하기 위해 (친구만 찾기 위해)
+
+        return UserListResponse(userMapNotMe.map { UserIdAndNameResponse(it.phone, it.name) })
     }
 
     fun getInvitedList(user: User): UserListResponse {
-        if (user.invite.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
-        return UserListResponse(user.invite.map { UserIdAndNameResponse(it.phone, it.name) })
+        val invitedUsers = friendRepo.findFriendBySenderAndStateIs(user)
+        if (invitedUsers.isEmpty())
+            throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
+        val notMe = invitedUsers.map { it.receiver }
+        return UserListResponse(notMe.map { UserIdAndNameResponse(it.phone, it.name) })
     }
 
     fun getReceivedList(user: User): UserListResponse {
-        if (user.receive.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
-        return UserListResponse(user.receive.map { UserIdAndNameResponse(it.phone, it.name) })
-    }
-
-
-    // inviteduser 친추받는 사람 user 나
-    fun inviteFriend(invitedUser: User, user: User) {
-        if (invitedUser.invite.contains(user)) {
-            this.acceptInviteFriend(invitedUser, user)
-        } else {
-            user.invite.add(invitedUser)
-            invitedUser.receive.add(user)
-            userRepository.save(user)
-            userRepository.save(invitedUser)
-        }
-    }
-
-    fun acceptInviteFriend(invitedUser: User, user: User) {
-        if (invitedUser.invite.contains(user)) {
-            user.friend.add(invitedUser)
-            invitedUser.friend.add(user)
-            invitedUser.invite.remove(user)
-            user.receive.remove(invitedUser)
-            userRepository.save(user)
-            userRepository.save(invitedUser)
-        } else {
-            throw CustomError(ErrorDetail.USER_NOT_INVITED)
-        }
-    }
-
-    fun rejectInviteFriend(invitedUser: User, user: User) {
-        if (invitedUser.invite.contains(user)) {
-            invitedUser.invite.remove(user)
-            user.receive.remove(invitedUser)
-            userRepository.save(user)
-            userRepository.save(invitedUser)
-        } else {
+        val receivedUsers = friendRepo.findFriendByReceiverAndStateIs(user)
+        if (receivedUsers.isEmpty())
             throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
-        }
+        val senders = receivedUsers.map { it.sender }
+        return UserListResponse(senders.map { UserIdAndNameResponse(it.phone, it.name) })
     }
 
-    fun deleteFriend(deleteFriend: User, user: User) {
-        if (deleteFriend.friend.contains(user)) {
-            deleteFriend.friend.remove(user)
-            user.friend.remove(deleteFriend)
-            userRepository.save(deleteFriend)
-            userRepository.save(user)
-        } else {
-            throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
-        }
+
+    fun inviteFriend(sender: User, receiver: User): Unit {
+        val n = friendRepo.findFriendByTwoUser(sender, receiver)
+            ?: return friendRepo.save(Friend(sender = sender, receiver = receiver, state = FriendState.PENDING)).let {}
+        if (n.receiver == sender) acceptFriendRequest(receiver, sender)
+        throw CustomError(ErrorDetail.ALREADY_SENT)
+    }
+    // user: 요청받은 사람
+    fun acceptFriendRequest(receiver: User, sender: User) {
+        val n = friendRepo.findFriendByTwoUser(receiver, sender)
+            ?: throw CustomError(ErrorDetail.USER_NOT_INVITED)
+        if (n.receiver != receiver)
+            throw CustomError(ErrorDetail.NO_SELF_CONFIRM)
+        friendRepo.save(n.copy(state = FriendState.ACCEPTED))
     }
 
-//    fun inviteFriend(invitedUser: User, user: User) {
-//        invitedUser.waitFriends.add(user)
-//        user.invitedFriends.add(invitedUser)
-//        userRepository.save(invitedUser)
-//        userRepository.save(user)
-//    }
-//
-//    fun reciveFriend(recivedUser: User, user: User) {
-//        user.waitFriends.contains(recivedUser)
-//        user.friend.add(recivedUser)
-//        user.waitFriends.remove(recivedUser)
-//    }
-
+    fun deleteFriend(sender: User, receiver: User) {
+        val n = friendRepo.findFriendByTwoUser(sender, receiver)
+            ?: throw CustomError(ErrorDetail.USER_NOT_INVITED)
+        friendRepo.delete(n)
+    }
 }
