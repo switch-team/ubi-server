@@ -9,10 +9,12 @@ import dev.jombi.ubi.repository.FriendRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
 import dev.jombi.ubi.util.state.FriendState
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class FriendService(val friendRepo: FriendRepository) {
+    private val LOGGER = LoggerFactory.getLogger(FriendService::class.java)
     fun getFriendList(user: User): UserListResponse {
         val users = friendRepo.findUsersByUserAndState(user, FriendState.ACCEPTED)
         if (users.isEmpty())
@@ -50,9 +52,10 @@ class FriendService(val friendRepo: FriendRepository) {
     }
 
     fun acceptFriendRequest(receiver: User, sender: User) {
+        LOGGER.info("{} {}", receiver, sender)
         val n = friendRepo.findFriendByTwoUser(receiver, sender)
             ?: throw CustomError(ErrorDetail.USER_NOT_INVITED)
-        if (n.receiver != receiver)
+        if (n.sender == receiver)
             throw CustomError(ErrorDetail.NO_SELF_CONFIRM)
         friendRepo.save(n.copy(state = FriendState.ACCEPTED))
     }

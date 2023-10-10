@@ -7,20 +7,16 @@ import dev.jombi.ubi.service.FriendService
 import dev.jombi.ubi.service.UserService
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 @RestController
 @RequestMapping("/friend")
 class FriendController(val service: FriendService, val userService: UserService) {
-    @GetMapping("/")
+    @GetMapping
     fun list(auth: Authentication): ResponseEntity<GuidedResponse<UserListResponse>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
         val result = service.getFriendList(user)
@@ -35,26 +31,26 @@ class FriendController(val service: FriendService, val userService: UserService)
     }
 
     @PostMapping("/request")
-    fun request(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        val invitedUser = userService.getUserByPhoneOrEmail(request.id)
+    fun request(@Valid @RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+        val receiver = userService.getUserById(UUID.fromString(request.id))
         val user = userService.getUserById(UUID.fromString(auth.name))
-        service.inviteFriend(invitedUser, user)
-        return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
+        service.inviteFriend(user, receiver)
+        return ResponseEntity.ok(GuidedResponseBuilder{}.noData())
     }
 
     @PostMapping("/accept")
-    fun accept(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        val invitedUser = userService.getUserByPhoneOrEmail(request.id)
+    fun accept(@Valid @RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+        val sender = userService.getUserById(UUID.fromString(request.id))
         val user = userService.getUserById(UUID.fromString(auth.name))
-        service.acceptFriendRequest(invitedUser, user)
-        return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
+        service.acceptFriendRequest(user, sender)
+        return ResponseEntity.ok(GuidedResponseBuilder{}.noData())
     }
 
-    @DeleteMapping("/delete")
-    fun delete(@RequestBody request: UserIdRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        val deleteFriend = userService.getUserByPhoneOrEmail(request.id)
+    @DeleteMapping("/{id}")
+    fun delete(auth: Authentication, @PathVariable id: String): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
-        service.deleteFriend(deleteFriend, user)
-        return ResponseEntity.ok(GuidedResponseBuilder { message = "succes" }.noData())
+        val target = userService.getUserById(UUID.fromString(id))
+        service.deleteFriend(user, target)
+        return ResponseEntity.ok(GuidedResponseBuilder{}.noData())
     }
 }

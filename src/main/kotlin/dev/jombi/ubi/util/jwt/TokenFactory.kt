@@ -43,6 +43,7 @@ class TokenFactory(
     }
 
     fun getAuthenticationByToken(token: String): Authentication {
+        validateToken(token)
         val claims = Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
@@ -62,7 +63,7 @@ class TokenFactory(
         this.key = Keys.hmacShaKeyFor(keyBytes)
     }
 
-    fun validateToken(token: String?): Jws<Claims> {
+    fun validateToken(token: String): Jws<Claims> {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
         } catch (e: SecurityException) {
