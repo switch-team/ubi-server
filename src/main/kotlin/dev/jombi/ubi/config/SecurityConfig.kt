@@ -1,4 +1,4 @@
-package dev.jombi.ubi
+package dev.jombi.ubi.config
 
 import dev.jombi.ubi.filter.TokenFilter
 import dev.jombi.ubi.util.jwt.TokenFactory
