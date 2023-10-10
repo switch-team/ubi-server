@@ -7,6 +7,7 @@ import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -26,6 +27,16 @@ class ErrorHandler {
             GuidedResponseBuilder(
                 ErrorDetail.INTERNAL_SERVER_ERROR.status,
                 "${e.message}", //  ${e.cause}
+            ).noData()
+        )
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    protected fun handleException(e: HttpMessageNotReadableException): ResponseEntity<GuidedResponse<Any>> {
+        return ResponseEntity.status(400).body(
+            GuidedResponseBuilder(
+                HttpStatus.BAD_REQUEST,
+                if (e.localizedMessage.contains("parse error")) "Error while parsing." else e.localizedMessage, //  ${e.cause}
             ).noData()
         )
     }

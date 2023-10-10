@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 
 @Configuration
@@ -25,11 +26,12 @@ class SecurityConfig(private val tokenFactory: TokenFactory) {
     fun filterChain(http: HttpSecurity): SecurityFilterChain? {
         return http
             .formLogin { it.disable() }
-            .csrf { it.disable() }
+            .csrf { it.ignoringRequestMatchers(AntPathRequestMatcher("/**")) }
             .authorizeHttpRequests {
                 it
                     .requestMatchers("admin/**").hasAnyAuthority("ADMIN")
                     .requestMatchers("auth/**").permitAll()
+                    .requestMatchers("friend/find").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement {

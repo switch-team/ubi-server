@@ -10,6 +10,7 @@ import java.util.UUID
 interface UserRepository: JpaRepository<User, UUID> {
     fun getUserByEmail(email: String): User?
     fun getUserByPhone(phone: String): User?
+    fun getUserByName(name: String): User?
     @EntityGraph(attributePaths = ["authorities"])
     fun findUserById(id: UUID): User?
 }

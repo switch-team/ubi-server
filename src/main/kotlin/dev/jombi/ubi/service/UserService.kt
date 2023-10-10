@@ -1,6 +1,7 @@
 package dev.jombi.ubi.service
 
 import dev.jombi.ubi.dto.Profile
+import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.UserRepository
 import dev.jombi.ubi.util.response.CustomError
@@ -17,5 +18,26 @@ class UserService(private val userRepository: UserRepository) {
 
     fun verifyUserExists(uuid: UUID): Boolean {
         return userRepository.existsById(uuid)
+    }
+
+    fun findUser(phoneOrEmail: String): UserIdAndNameResponse {
+        val user = (
+                if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
+                else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
+                ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+        return UserIdAndNameResponse(id = user.id.toString(), name = user.name)
+    }
+
+
+    fun getUserById(id: UUID): User {
+        return userRepository.findUserById(id) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+    }
+
+    fun getUserByPhoneOrEmail(phoneOrEmail: String): User {
+        val user = (
+                if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
+                else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
+                ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+        return user
     }
 }
