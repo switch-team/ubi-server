@@ -5,7 +5,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "board")
-data class Board(
+data class Article(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID = UUID.randomUUID(),
@@ -16,7 +16,7 @@ data class Board(
     @Column(name = "view")
     val viewCount: Long = 0,
     @Column(name = "like")
-    val likeCount: Long= 0,
+    val likeCount: Long = 0,
     @ManyToOne
     val writer: User
 )
