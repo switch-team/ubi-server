@@ -4,6 +4,12 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.UUID
 
+/*
+ * TODO: GEO Code the article.
+ *  - get latitude and longitude and save it in entity.
+ *  - Filter it using Calculation.
+ *  - Show all if requested user is me.
+ **/
 @Entity
 @Table(name = "article")
 data class Article(
