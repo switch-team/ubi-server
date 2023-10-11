@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/article")
 class ArticleController(val articleService: ArticleService, val userService: UserService, val fileService: FileService) {
     @PostMapping("/{id}/like")
     fun likeArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
