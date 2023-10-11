@@ -19,8 +19,9 @@ data class User(
     @Column(name = "username", length = 24, nullable = false)
     val name: String,
 
-    @Column(name = "profile_image", length = 256, nullable = true)
-    val profileImage: String? = null, // TODO: CDN or INTERNAL FILE
+    @OneToOne(optional = true)
+    @JoinColumn(name = "profile_image_id", nullable = true)
+    val profileImage: UploadedFile? = null,
 
     @ManyToMany
     @JoinTable(
