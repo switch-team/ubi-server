@@ -36,6 +36,12 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
 
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+
+	// Update libraries to avoid vulnerabilities
+	implementation("org.apache.httpcomponents:httpclient:4.5.14")
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.565")
+	implementation("javax.xml.bind:jaxb-api:2.3.1")
 
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")

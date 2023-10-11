@@ -14,3 +14,12 @@ jwt:
   token-expires-at: 14515200
 server:
   port: 8080
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: ubi-storage
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
