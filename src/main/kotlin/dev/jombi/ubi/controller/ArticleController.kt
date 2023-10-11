@@ -45,7 +45,7 @@ class ArticleController(val articleService: ArticleService, val userService: Use
         auth: Authentication
     ): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
-        articleService.postArticle(postArticleRequest, user, file?.let { fileService.upload(file, "profile") })
+        articleService.postArticle(postArticleRequest, user, file?.let { fileService.upload(file, "article") })
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
