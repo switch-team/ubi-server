@@ -1,7 +1,7 @@
 package dev.jombi.ubi.entity
 
 import jakarta.persistence.*
-import java.util.Date
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -11,15 +11,15 @@ data class Article(
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID = UUID.randomUUID(),
     @Column(name = "date", nullable = false)
-    val date: Date = Date(),
-    @Column(name = "title", length = 180, nullable = false)
+    val date: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "title", length = 128, nullable = false)
     val title: String,
-    @Column(name = "detail", length = 3000, nullable = false)
+    @Column(name = "content", length = 2048, nullable = false)
     val content: String,
-    @Column(name = "view")
-    val viewCount: Long = 0,
-    @Column(name = "like")
-    val likeCount: Long = 0,
+    @Column(name = "view_count")
+    val viewCount: Int = 0,
+    @Column(name = "like_count")
+    val likeCount: Int = 0,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
     val writer: User,

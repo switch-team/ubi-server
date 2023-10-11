@@ -15,6 +15,7 @@ import java.util.UUID
 
 @Service
 class ArticleService(val articleRepository: ArticleRepository) {
+    @Suppress("unused")
     fun likeArticle(id: UUID) {
         val article = articleRepository.getArticleById(id)
             ?: throw CustomError(ErrorDetail.ARTICLE_NOT_FOUND)
@@ -24,7 +25,13 @@ class ArticleService(val articleRepository: ArticleRepository) {
     fun viewMyArticleList(user: User): ArticleListResponse {
         val articles = articleRepository.getArticlesByWriter(user)
         if (articles.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_ARTICLE)
-        return ArticleListResponse(articles.map {ArticleTitleAndDateResponse(it.id, it.title, it.date, it.thumbnailImage?.url?.let { URL(it) })})
+        return ArticleListResponse(articles.map {
+            ArticleTitleAndDateResponse(
+                it.id,
+                it.title,
+                it.date,
+                it.thumbnailImage?.url?.let { URL(it) })
+        })
     }
 
     fun getArticle(id: UUID, update: Boolean = true): ViewArticleResponse {
