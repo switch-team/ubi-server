@@ -23,12 +23,18 @@ import java.util.*
 
 @RestController
 @RequestMapping("/article")
-class ArticleController(val articleService: ArticleService, val userService: UserService, val fileService: FileService) {
-    @PostMapping("/{id}/like")
-    fun likeArticle(@PathVariable id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        articleService.likeArticle(UUID.fromString(id))
-        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
-    }
+class ArticleController(
+    val articleService: ArticleService,
+    val userService: UserService,
+    val fileService: FileService
+) {
+    // TODO: 좋아요
+    // Known issues: 좋아요 여러번 눌림 (체크 넣어야 함) (Many to ?)
+//    @PostMapping("/{id}/like")
+//    fun likeArticle(@PathVariable id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+//        articleService.likeArticle(UUID.fromString(id))
+//        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
+//    }
 
     @GetMapping
     fun viewMyArticleList(auth: Authentication): ResponseEntity<GuidedResponse<ArticleListResponse>> {
@@ -39,19 +45,25 @@ class ArticleController(val articleService: ArticleService, val userService: Use
 
     @PostMapping
     fun postArticle(
-        @RequestPart(value = "thumbnailImage") file: MultipartFile?,
-        @RequestPart(value = "data") @Valid postArticleRequest: PostArticleRequest,
+        @RequestPart(value = "thumbnailImage", required = false) file: MultipartFile?, // 미리보기야?
+        @RequestPart(value = "data") @Valid request: PostArticleRequest,
         auth: Authentication
     ): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
-        articleService.postArticle(postArticleRequest, user, file?.let { fileService.upload(file, "article") })
+        articleService.postArticle(
+            request.title,
+            request.content,
+            user,
+            file?.let { fileService.upload(file, "article") })
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
     @GetMapping("/{id}")
-    fun viewArticle(@PathVariable id: String, auth: Authentication): ResponseEntity<GuidedResponse<ViewArticleResponse>> {
-        val user = userService.getUserById(UUID.fromString(auth.name))
-        val result = articleService.viewArticle(UUID.fromString(id), user)
+    fun viewArticle(
+        @PathVariable id: String,
+        auth: Authentication
+    ): ResponseEntity<GuidedResponse<ViewArticleResponse>> {
+        val result = articleService.getArticle(UUID.fromString(id))
         return ResponseEntity.ok(GuidedResponseBuilder {}.build(result))
     }
 

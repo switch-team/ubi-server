@@ -9,5 +9,5 @@ data class PostArticleRequest(
     val title: String,
     @field:NotNull
     @field:NotBlank
-    val detail: String
+    val content: String
 )

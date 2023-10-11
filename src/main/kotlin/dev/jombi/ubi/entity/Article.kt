@@ -5,7 +5,7 @@ import java.util.Date
 import java.util.UUID
 
 @Entity
-@Table(name = "board")
+@Table(name = "article")
 data class Article(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -15,11 +15,11 @@ data class Article(
     @Column(name = "title", length = 180, nullable = false)
     val title: String,
     @Column(name = "detail", length = 3000, nullable = false)
-    val detail: String,
+    val content: String,
     @Column(name = "view")
-    var viewCount: Long = 0,
+    val viewCount: Long = 0,
     @Column(name = "like")
-    var likeCount: Long = 0,
+    val likeCount: Long = 0,
     @ManyToOne
     val writer: User,
     @OneToOne(optional = true)

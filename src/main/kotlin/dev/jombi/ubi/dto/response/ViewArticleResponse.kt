@@ -8,7 +8,7 @@ data class ViewArticleResponse(
     val id: UUID,
     val title: String,
     val date: Date,
-    val detail: String,
+    val content: String,
     var viewCount: Long? = null,
     val likeCount: Long,
     val writer: User? = null,
