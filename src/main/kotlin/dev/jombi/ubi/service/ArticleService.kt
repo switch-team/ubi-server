@@ -1,6 +1,5 @@
 package dev.jombi.ubi.service
 
-import dev.jombi.ubi.dto.response.ArticleListResponse
 import dev.jombi.ubi.dto.response.ArticleTitleAndDateResponse
 import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.entity.Article
@@ -15,23 +14,26 @@ import java.util.UUID
 
 @Service
 class ArticleService(val articleRepository: ArticleRepository) {
-    @Suppress("unused")
-    fun likeArticle(id: UUID) {
+    fun likeArticle(id: UUID, user: User) {
         val article = articleRepository.getArticleById(id)
             ?: throw CustomError(ErrorDetail.ARTICLE_NOT_FOUND)
-        articleRepository.save(article.copy(likeCount = article.likeCount + 1)) // must copy
+        if (article.writer == user)
+            throw CustomError(ErrorDetail.CANT_LIKE_OWN_ARTICLE)
+        if (article.likedUser.contains(user))
+            throw CustomError(ErrorDetail.ALREADY_LIKED)
+        articleRepository.save(article.copy(likedUser = article.likedUser + user))
     }
 
-    fun viewMyArticleList(user: User): ArticleListResponse {
+    fun viewMyArticleList(user: User): List<ArticleTitleAndDateResponse> {
         val articles = articleRepository.getArticlesByWriter(user)
         if (articles.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_ARTICLE)
-        return ArticleListResponse(articles.map {
+        return articles.map {
             ArticleTitleAndDateResponse(
                 it.id,
                 it.title,
                 it.date,
-                it.thumbnailImage?.url?.let { URL(it) })
-        })
+                it.thumbnailImage?.url?.let { u -> URL(u) })
+        }
     }
 
     fun getArticle(id: UUID, update: Boolean = true): ViewArticleResponse {
@@ -46,7 +48,7 @@ class ArticleService(val articleRepository: ArticleRepository) {
             date = article.date,
             title = article.title,
             content = article.content,
-            likeCount = article.likeCount,
+            likeCount = article.likedUser.size,
             viewCount = article.viewCount,
             thumbnailImage = article.thumbnailImage?.url?.let { URL(it) }
         )

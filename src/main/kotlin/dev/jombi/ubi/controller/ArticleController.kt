@@ -1,7 +1,7 @@
 package dev.jombi.ubi.controller
 
 import dev.jombi.ubi.dto.request.PostArticleRequest
-import dev.jombi.ubi.dto.response.ArticleListResponse
+import dev.jombi.ubi.dto.response.ArticleTitleAndDateResponse
 import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.service.ArticleService
 import dev.jombi.ubi.service.FileService
@@ -10,7 +10,6 @@ import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.security.Principal
 import java.util.*
 
 @RestController
@@ -28,28 +28,33 @@ class ArticleController(
     val userService: UserService,
     val fileService: FileService
 ) {
-    // TODO: 좋아요
-    // Known issues: 좋아요 여러번 눌림 (체크 넣어야 함) (Many to ?)
-//    @PostMapping("/{id}/like")
-//    fun likeArticle(@PathVariable id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-//        articleService.likeArticle(UUID.fromString(id))
-//        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
-//    }
+    @PostMapping("/{id}/like")
+    fun likeArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
+        val user = userService.getUserById(UUID.fromString(p.name))
+        articleService.likeArticle(UUID.fromString(id), user)
+        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
+    }
 
+    // TODO: GEOCode the article lists
     @GetMapping
-    fun viewMyArticleList(auth: Authentication): ResponseEntity<GuidedResponse<ArticleListResponse>> {
-        val user = userService.getUserById(UUID.fromString(auth.name))
+    fun getArticles(p: Principal): ResponseEntity<GuidedResponse<Any>> {
+        return ResponseEntity.ok(GuidedResponseBuilder {  }.noData())
+    }
+
+    @GetMapping("/my")
+    fun viewMyArticleList(p: Principal): ResponseEntity<GuidedResponse<List<ArticleTitleAndDateResponse>>> {
+        val user = userService.getUserById(UUID.fromString(p.name))
         val result = articleService.viewMyArticleList(user)
         return ResponseEntity.ok(GuidedResponseBuilder {}.build(result))
     }
 
     @PostMapping
     fun postArticle(
-        @RequestPart(value = "thumbnailImage", required = false) file: MultipartFile?, // 미리보기야?
+        @RequestPart(value = "thumbnailImage", required = false) file: MultipartFile?,
         @RequestPart(value = "data") @Valid request: PostArticleRequest,
-        auth: Authentication
+        p: Principal
     ): ResponseEntity<GuidedResponse<Any>> {
-        val user = userService.getUserById(UUID.fromString(auth.name))
+        val user = userService.getUserById(UUID.fromString(p.name))
         articleService.postArticle(
             request.title,
             request.content,
@@ -61,15 +66,15 @@ class ArticleController(
     @GetMapping("/{id}")
     fun viewArticle(
         @PathVariable id: String,
-        auth: Authentication
+        p: Principal
     ): ResponseEntity<GuidedResponse<ViewArticleResponse>> {
         val result = articleService.getArticle(UUID.fromString(id))
         return ResponseEntity.ok(GuidedResponseBuilder {}.build(result))
     }
 
     @DeleteMapping("/{id}")
-    fun deleteArticle(@PathVariable id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        val user = userService.getUserById(UUID.fromString(auth.name))
+    fun deleteArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
+        val user = userService.getUserById(UUID.fromString(p.name))
         articleService.deleteArticle(UUID.fromString(id), user)
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }

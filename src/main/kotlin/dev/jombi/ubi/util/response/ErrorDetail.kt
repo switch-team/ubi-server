@@ -15,6 +15,8 @@ enum class ErrorDetail(val message: String, val status: HttpStatus) {
     NO_SELF_CONFIRM("You can't accept your request.", HttpStatus.BAD_REQUEST),
     USER_DO_NOT_HAVE_FRIEND("This user don't have any frineds.", HttpStatus.NOT_FOUND),
     ALREADY_SENT("Request already sent.", HttpStatus.BAD_REQUEST),
+    ALREADY_LIKED("You already liked this article.", HttpStatus.BAD_REQUEST),
+    CANT_LIKE_OWN_ARTICLE("You can't like your article.", HttpStatus.BAD_REQUEST),
     USER_IS_ALREADY_FRIEND("User is already a friend.", HttpStatus.BAD_REQUEST),
     FILE_EXTENSION_NOT_PROVIDED("File extension is not provided.", HttpStatus.BAD_REQUEST),
     ARTICLE_NOT_FOUND("Article not found", HttpStatus.NOT_FOUND),

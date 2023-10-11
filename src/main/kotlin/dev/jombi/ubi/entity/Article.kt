@@ -24,8 +24,13 @@ data class Article(
     val content: String,
     @Column(name = "view_count")
     val viewCount: Int = 0,
-    @Column(name = "like_count")
-    val likeCount: Int = 0,
+    @ManyToMany
+    @JoinTable(
+        name = "article_likes",
+        joinColumns = [JoinColumn(name = "board_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "user_id")]
+    )
+    val likedUser: Set<User> = emptySet(),
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
     val writer: User,
