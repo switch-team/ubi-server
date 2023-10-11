@@ -20,7 +20,6 @@ class FriendService(val friendRepo: FriendRepository) {
         if (users.isEmpty())
             throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_FRIEND)
         val userMapNotMe = users.map { if (it.sender == user) it.receiver else it.sender }
-        // 나를 제외하기 위해 (친구만 찾기 위해)
 
         return UserListResponse(userMapNotMe.map { UserIdAndNameResponse(it.id.toString(), it.name) })
     }
@@ -57,6 +56,8 @@ class FriendService(val friendRepo: FriendRepository) {
             ?: throw CustomError(ErrorDetail.USER_NOT_INVITED)
         if (n.sender == receiver)
             throw CustomError(ErrorDetail.NO_SELF_CONFIRM)
+        if (n.state == FriendState.ACCEPTED)
+            throw CustomError(ErrorDetail.USER_IS_ALREADY_FRIEND)
         friendRepo.save(n.copy(state = FriendState.ACCEPTED))
     }
 

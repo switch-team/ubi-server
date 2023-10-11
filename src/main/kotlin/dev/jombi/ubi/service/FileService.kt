@@ -8,14 +8,13 @@ import dev.jombi.ubi.entity.UploadedFile
 import dev.jombi.ubi.repository.FileRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @Service
-class FileService(@Value("\${cloud.aws.s3.bucket}") val bucket: String, val amazonS3Client: AmazonS3Client, val fileRepository: FileRepository) {
+class FileService(@Value("\${cloud.aws.s3.bucket}") private val bucket: String, private val amazonS3Client: AmazonS3Client, private val fileRepository: FileRepository) {
     @Suppress("unused")
     fun upload(file: MultipartFile, directory: String): UploadedFile {
         val meta = ObjectMetadata()
