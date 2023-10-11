@@ -1,14 +1,14 @@
 package dev.jombi.ubi.dto.response
 
 import dev.jombi.ubi.entity.User
-import jakarta.persistence.*
 import java.util.*
 
-data class ArticleResponse(
-    val id: UUID = UUID.randomUUID(),
+data class ViewArticleResponse(
+    val id: UUID,
     val title: String,
+    val date: Date,
     val detail: String,
-    val viewCount: Long? = null,
+    var viewCount: Long? = null,
     val likeCount: Long,
     val writer: User? = null
 )

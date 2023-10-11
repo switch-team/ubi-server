@@ -1,6 +1,8 @@
 package dev.jombi.ubi.controller
 
-import dev.jombi.ubi.dto.request.PostBoardRequest
+import dev.jombi.ubi.dto.request.PostArticleRequest
+import dev.jombi.ubi.dto.response.ArticleListResponse
+import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.service.ArticleService
 import dev.jombi.ubi.service.UserService
 import dev.jombi.ubi.util.response.GuidedResponse
@@ -22,32 +24,35 @@ import java.util.*
 class ArticleController(val articleService: ArticleService, val userService: UserService) {
     @PostMapping("/{id}/like")
     fun likeArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-
-        return ResponseEntity.ok()
+        articleService.likeArticle(UUID.fromString(id))
+        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
     @GetMapping
-    fun myArticleList(auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-        return ResponseEntity.ok()
+    fun viewMyArticleList(auth: Authentication): ResponseEntity<GuidedResponse<ArticleListResponse>> {
+        val user = userService.getUserById(UUID.fromString(auth.name))
+        val result = articleService.viewMyArticleList(user)
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(result))
     }
 
     @PostMapping
-    fun postArticle(@Valid @RequestBody postBoardRequest: PostBoardRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+    fun postArticle(@Valid @RequestBody postArticleRequest: PostArticleRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
-        articleService.postArticle(postBoardRequest, user)
+        articleService.postArticle(postArticleRequest, user)
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
     @GetMapping("/{id}")
-    fun viewArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+    fun viewArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<ViewArticleResponse>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
         val result = articleService.viewArticle(UUID.fromString(id), user)
-        return ResponseEntity.ok()
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(result))
     }
 
     @DeleteMapping("/{id}")
     fun deleteArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
-
-        return ResponseEntity.ok()
+        val user = userService.getUserById(UUID.fromString(auth.name))
+        articleService.deleteArticle(UUID.fromString(id), user)
+        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 }

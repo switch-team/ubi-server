@@ -1,7 +1,9 @@
 package dev.jombi.ubi.service
 
-import dev.jombi.ubi.dto.request.PostBoardRequest
-import dev.jombi.ubi.dto.response.ArticleResponse
+import dev.jombi.ubi.dto.request.PostArticleRequest
+import dev.jombi.ubi.dto.response.ArticleListResponse
+import dev.jombi.ubi.dto.response.ArticleTitleAndDateResponse
+import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.entity.Article
 import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.ArticleRepository
@@ -13,33 +15,52 @@ import java.util.UUID
 
 @Service
 class ArticleService(val articleRepository: ArticleRepository) {
-    fun likeBoard(id: UUID, auth: Authentication) {
-
-
-    }
-
-    fun viewArticle(id: UUID, user: User): ArticleResponse {
+    fun likeArticle(id: UUID) {
         val article = articleRepository.getArticleById(id)
             ?: throw CustomError(ErrorDetail.ARTICLE_NOT_FOUND)
-        val result = ArticleResponse(
+        article.likeCount += 1
+        articleRepository.save(article)
+    }
+
+    fun viewMyArticleList(user: User): ArticleListResponse {
+        val articles = articleRepository.getArticlesByWriter(user)
+        if (articles.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_ARTICLE)
+        return ArticleListResponse(articles.map {ArticleTitleAndDateResponse(it.id, it.title, it.date)})
+    }
+
+    fun viewArticle(id: UUID, user: User): ViewArticleResponse {
+        val article = articleRepository.getArticleById(id)
+            ?: throw CustomError(ErrorDetail.ARTICLE_NOT_FOUND)
+        val result = ViewArticleResponse(
             id = article.id,
+            date = article.date,
             title = article.title,
             detail = article.detail,
             likeCount = article.likeCount
         )
         if (article.writer == user) {
+            result.viewCount = article.viewCount
             return result
         }
-        result.viewCount = article.viewCount
+        article.viewCount += 1
+        articleRepository.save(article)
         return result
     }
 
-    fun postArticle(postBoardRequest: PostBoardRequest, user: User) {
+
+    fun postArticle(postArticleRequest: PostArticleRequest, user: User) {
         val article = Article(
-            title = postBoardRequest.title,
-            detail = postBoardRequest.detail,
+            title = postArticleRequest.title,
+            detail = postArticleRequest.detail,
             writer = user
         )
         articleRepository.save(article)
+    }
+
+    fun deleteArticle(id: UUID, user: User) {
+        val article = articleRepository.getArticleById(id)
+            ?: throw CustomError(ErrorDetail.ARTICLE_NOT_FOUND)
+        if (article.writer != user) throw CustomError(ErrorDetail.USER_IS_NOT_WRITER)
+        articleRepository.delete(article)
     }
 }
