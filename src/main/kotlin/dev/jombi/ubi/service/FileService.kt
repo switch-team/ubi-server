@@ -8,14 +8,16 @@ import dev.jombi.ubi.entity.UploadedFile
 import dev.jombi.ubi.repository.FileRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @Service
-class FileService(@Value("cloud.aws.s3.bucket") val bucket: String, val amazonS3Client: AmazonS3Client, val fileRepository: FileRepository) {
-    fun upload(file: MultipartFile, directory: String, mappedFileName: String): UploadedFile {
+class FileService(@Value("\${cloud.aws.s3.bucket}") val bucket: String, val amazonS3Client: AmazonS3Client, val fileRepository: FileRepository) {
+    @Suppress("unused")
+    fun upload(file: MultipartFile, directory: String): UploadedFile {
         val meta = ObjectMetadata()
         meta.contentType = file.contentType
         meta.contentLength = file.size
@@ -23,7 +25,7 @@ class FileService(@Value("cloud.aws.s3.bucket") val bucket: String, val amazonS3
         val extension = file.originalFilename?.let { it.substring(it.lastIndexOf(".") + 1) }
             ?: throw CustomError(ErrorDetail.FILE_EXTENSION_NOT_PROVIDED)
 
-        val key = "$$directory/${UUID.randomUUID()}_${System.currentTimeMillis()}.$extension"
+        val key = "$directory/${UUID.randomUUID()}_${System.currentTimeMillis()}.$extension"
         file.inputStream.use {
             amazonS3Client.putObject(PutObjectRequest(bucket, key, it, meta).withCannedAcl(CannedAccessControlList.PublicRead))
         }

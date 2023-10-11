@@ -20,6 +20,6 @@ cloud:
     region:
       static: ap-northeast-2
     s3:
-      bucket: ubi-server
+      bucket: ubi-storage
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
