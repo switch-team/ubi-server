@@ -17,5 +17,8 @@ enum class ErrorDetail(val message: String, val status: HttpStatus) {
     ALREADY_SENT("Request already sent.", HttpStatus.BAD_REQUEST),
     USER_IS_ALREADY_FRIEND("User is already a friend.", HttpStatus.BAD_REQUEST),
     FILE_EXTENSION_NOT_PROVIDED("File extension is not provided.", HttpStatus.BAD_REQUEST),
+    ARTICLE_NOT_FOUND("Article not found", HttpStatus.NOT_FOUND),
+    USER_IS_NOT_WRITER("This user is not writer", HttpStatus.BAD_REQUEST),
+    USER_DO_NOT_HAVE_ARTICLE("This user had never written article before", HttpStatus.NOT_FOUND)
 
 }
