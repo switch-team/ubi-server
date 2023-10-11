@@ -5,12 +5,14 @@ import dev.jombi.ubi.dto.response.ArticleListResponse
 import dev.jombi.ubi.dto.response.ArticleTitleAndDateResponse
 import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.entity.Article
+import dev.jombi.ubi.entity.UploadedFile
 import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.ArticleRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorDetail
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import java.net.URL
 import java.util.UUID
 
 @Service
@@ -25,7 +27,7 @@ class ArticleService(val articleRepository: ArticleRepository) {
     fun viewMyArticleList(user: User): ArticleListResponse {
         val articles = articleRepository.getArticlesByWriter(user)
         if (articles.isEmpty()) throw CustomError(ErrorDetail.USER_DO_NOT_HAVE_ARTICLE)
-        return ArticleListResponse(articles.map {ArticleTitleAndDateResponse(it.id, it.title, it.date)})
+        return ArticleListResponse(articles.map {ArticleTitleAndDateResponse(it.id, it.title, it.date, it.thumbnailImage?.url?.let { URL(it) })})
     }
 
     fun viewArticle(id: UUID, user: User): ViewArticleResponse {
@@ -36,10 +38,12 @@ class ArticleService(val articleRepository: ArticleRepository) {
             date = article.date,
             title = article.title,
             detail = article.detail,
-            likeCount = article.likeCount
+            likeCount = article.likeCount,
+            thumbnailImage = article.thumbnailImage?.url?.let { URL(it) }
         )
         if (article.writer == user) {
             result.viewCount = article.viewCount
+            articleRepository.save(article)
             return result
         }
         article.viewCount += 1
@@ -48,11 +52,12 @@ class ArticleService(val articleRepository: ArticleRepository) {
     }
 
 
-    fun postArticle(postArticleRequest: PostArticleRequest, user: User) {
+    fun postArticle(postArticleRequest: PostArticleRequest, user: User, file: UploadedFile?) {
         val article = Article(
             title = postArticleRequest.title,
             detail = postArticleRequest.detail,
-            writer = user
+            writer = user,
+            thumbnailImage = file
         )
         articleRepository.save(article)
     }

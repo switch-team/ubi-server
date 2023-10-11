@@ -21,5 +21,8 @@ data class Article(
     @Column(name = "like")
     var likeCount: Long = 0,
     @ManyToOne
-    val writer: User
+    val writer: User,
+    @OneToOne(optional = true)
+    @JoinColumn(name = "article_image_id", nullable = true)
+    val thumbnailImage: UploadedFile? = null
 )

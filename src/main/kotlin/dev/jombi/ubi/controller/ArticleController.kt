@@ -4,6 +4,7 @@ import dev.jombi.ubi.dto.request.PostArticleRequest
 import dev.jombi.ubi.dto.response.ArticleListResponse
 import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.service.ArticleService
+import dev.jombi.ubi.service.FileService
 import dev.jombi.ubi.service.UserService
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
@@ -16,12 +17,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @RestController
 @RequestMapping("/board")
-class ArticleController(val articleService: ArticleService, val userService: UserService) {
+class ArticleController(val articleService: ArticleService, val userService: UserService, val fileService: FileService) {
     @PostMapping("/{id}/like")
     fun likeArticle(@PathParam("id") id: String, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
         articleService.likeArticle(UUID.fromString(id))
@@ -36,9 +39,13 @@ class ArticleController(val articleService: ArticleService, val userService: Use
     }
 
     @PostMapping
-    fun postArticle(@Valid @RequestBody postArticleRequest: PostArticleRequest, auth: Authentication): ResponseEntity<GuidedResponse<Any>> {
+    fun postArticle(
+        @RequestPart(value = "thumbnailImage") file: MultipartFile?,
+        @RequestPart(value = "data") @Valid postArticleRequest: PostArticleRequest,
+        auth: Authentication
+    ): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(auth.name))
-        articleService.postArticle(postArticleRequest, user)
+        articleService.postArticle(postArticleRequest, user, file?.let { fileService.upload(file, "profile") })
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
