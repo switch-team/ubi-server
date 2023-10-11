@@ -20,7 +20,8 @@ data class Article(
     val viewCount: Long = 0,
     @Column(name = "like")
     val likeCount: Long = 0,
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
     val writer: User,
     @OneToOne(optional = true)
     @JoinColumn(name = "article_image_id", nullable = true)
