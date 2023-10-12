@@ -50,6 +50,7 @@ class ArticleService(val articleRepository: ArticleRepository) {
             content = article.content,
             likeCount = article.likedUser.size,
             viewCount = article.viewCount,
+            writer = article.writer.name,
             thumbnailImage = article.thumbnailImage?.url?.let { URL(it) }
         )
     }

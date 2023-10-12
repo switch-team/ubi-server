@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.net.URL
 import java.security.Principal
 import java.util.*
 
@@ -35,10 +36,14 @@ class ArticleController(
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
-    // TODO: GEOCode the article lists
+    // TODO: GEOCode the article lists, Time limit
     @GetMapping
-    fun getArticles(p: Principal): ResponseEntity<GuidedResponse<Any>> {
-        return ResponseEntity.ok(GuidedResponseBuilder {  }.noData())
+    fun getArticles(p: Principal): ResponseEntity<GuidedResponse<List<ArticleTitleAndDateResponse>>> {
+        val articles = articleService.articleRepository.findAll() // FIXME: UNSAFE
+
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(articles.map {
+            ArticleTitleAndDateResponse(it.id, it.title, it.date, it.thumbnailImage?.url?.let { URL(it) })
+        }))
     }
 
     @GetMapping("/my")

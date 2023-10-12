@@ -47,7 +47,7 @@ class FriendService(val friendRepo: FriendRepository) {
         val n = friendRepo.findFriendByTwoUser(sender, receiver)
             ?: return friendRepo.save(Friend(sender = sender, receiver = receiver, state = FriendState.PENDING)).let {}
         if (n.receiver == sender) acceptFriendRequest(receiver, sender)
-        throw CustomError(ErrorDetail.ALREADY_SENT)
+        throw CustomError(ErrorDetail.FRIEND_REQUEST_ALREADY_SENT)
     }
 
     fun acceptFriendRequest(receiver: User, sender: User) {
