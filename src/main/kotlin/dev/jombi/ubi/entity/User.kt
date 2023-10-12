@@ -23,6 +23,9 @@ data class User(
     @JoinColumn(name = "profile_image_id", nullable = true)
     val profileImage: UploadedFile? = null,
 
+    @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY)
+    val articles: Set<Article> = emptySet(),
+
     @ManyToMany
     @JoinTable(
         name = "account_authority",
