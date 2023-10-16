@@ -29,9 +29,8 @@ class SecurityConfig(private val tokenFilter: TokenFilter, private val ehFilter:
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("admin/**").hasAnyAuthority("ADMIN")
-                    .requestMatchers("auth/**").permitAll()
-                    .requestMatchers("friend/find").permitAll()
+                    .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
+                    .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement {

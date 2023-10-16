@@ -11,7 +11,7 @@ class GuidedResponseSerializationTest {
         val t = GuidedResponseBuilder{message = "Success without data"}.noData()
 
         val serialized = mapper.readTree(mapper.writeValueAsString(t))
-        val rightAnswer = mapper.readTree(mapper.writeValueAsString(mapOf("status" to "OK", "message" to "Success without data")))
+        val rightAnswer = mapper.readTree(mapper.writeValueAsString(mapOf("status" to 200, "message" to "Success without data")))
 
         assert(serialized == rightAnswer)
     }
@@ -23,7 +23,7 @@ class GuidedResponseSerializationTest {
             .build(dat)
 
         val serialized = mapper.readTree(mapper.writeValueAsString(t))
-        val rightAnswer = mapper.readTree(mapper.writeValueAsString(mapOf("status" to "OK", "message" to "Success with data", "data" to dat)))
+        val rightAnswer = mapper.readTree(mapper.writeValueAsString(mapOf("status" to 200, "message" to "Success with data", "data" to dat)))
 
         assert(serialized == rightAnswer)
     }
