@@ -29,6 +29,7 @@ class SecurityConfig(private val tokenFilter: TokenFilter, private val ehFilter:
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it
+                    .requestMatchers("/test/**").permitAll() // FIXME: It's test implementation. you need to remove when release
                     .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                     .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated()
