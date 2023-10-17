@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull
 
 data class PostArticleRequest(
     @field:NotNull
-    @field:NotBlank
+    @field:NotBlank(message = "Must not be blank: title")
     val title: String,
     @field:NotNull
-    @field:NotBlank
+    @field:NotBlank(message = "Must not be blank: content")
     val content: String
 )

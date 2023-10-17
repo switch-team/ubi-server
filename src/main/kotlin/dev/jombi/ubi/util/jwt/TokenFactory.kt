@@ -1,11 +1,10 @@
 package dev.jombi.ubi.util.jwt
 
 import dev.jombi.ubi.util.response.CustomError
-import dev.jombi.ubi.util.response.ErrorDetail
+import dev.jombi.ubi.util.response.ErrorStatus
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SecurityException
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -62,15 +61,15 @@ class TokenFactory(
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
         } catch (e: SecurityException) {
-            throw CustomError(ErrorDetail.MALFORMED_TOKEN)
+            throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         } catch (e: MalformedJwtException) {
-            throw CustomError(ErrorDetail.MALFORMED_TOKEN)
+            throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         } catch (e: ExpiredJwtException) {
-            throw CustomError(ErrorDetail.EXPIRED_TOKEN)
+            throw CustomError(ErrorStatus.EXPIRED_TOKEN)
         } catch (e: UnsupportedJwtException) {
-            throw CustomError(ErrorDetail.MALFORMED_TOKEN)
+            throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         } catch (e: IllegalArgumentException) {
-            throw CustomError(ErrorDetail.MALFORMED_TOKEN)
+            throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         }
     }
 }

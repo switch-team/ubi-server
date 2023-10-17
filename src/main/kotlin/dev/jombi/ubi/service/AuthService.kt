@@ -4,8 +4,7 @@ import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.UserRepository
 import dev.jombi.ubi.util.jwt.TokenFactory
 import dev.jombi.ubi.util.response.CustomError
-import dev.jombi.ubi.util.response.ErrorDetail
-import org.slf4j.LoggerFactory
+import dev.jombi.ubi.util.response.ErrorStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.context.SecurityContextHolder
@@ -23,11 +22,11 @@ class AuthService(
         val user = (
                 if (phoneOrEmail.contains("@")) userRepository.getUserByEmail(phoneOrEmail)
                 else userRepository.getUserByPhone(phoneOrEmail.replace("-", ""))
-                ) ?: throw CustomError(ErrorDetail.USER_NOT_FOUND)
+                ) ?: throw CustomError(ErrorStatus.USER_NOT_FOUND)
 
 
         if (!encoder.matches(password, user.password))
-            throw CustomError(ErrorDetail.INCORRECT_PASSWORD)
+            throw CustomError(ErrorStatus.INCORRECT_PASSWORD)
 
         val auth =
             authBuilder.`object`.authenticate(UsernamePasswordAuthenticationToken("${user.id}", password))
@@ -37,8 +36,8 @@ class AuthService(
 
     fun registerNew(name: String, email: String, phoneWithDash: String, password: String) {
         val phone = phoneWithDash.replace("-", "")
-        userRepository.getUserByEmail(email)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
-        userRepository.getUserByPhone(phone)?.let { throw CustomError(ErrorDetail.USER_ALREADY_EXISTS) }
+        userRepository.getUserByEmail(email)?.let { throw CustomError(ErrorStatus.USER_ALREADY_EXISTS) }
+        userRepository.getUserByPhone(phone)?.let { throw CustomError(ErrorStatus.USER_ALREADY_EXISTS) }
 
         val passHashed = encoder.encode(password)
 

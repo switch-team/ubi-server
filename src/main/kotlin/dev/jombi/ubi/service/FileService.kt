@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest
 import dev.jombi.ubi.entity.UploadedFile
 import dev.jombi.ubi.repository.FileRepository
 import dev.jombi.ubi.util.response.CustomError
-import dev.jombi.ubi.util.response.ErrorDetail
+import dev.jombi.ubi.util.response.ErrorStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -22,7 +22,7 @@ class FileService(@Value("\${cloud.aws.s3.bucket}") private val bucket: String, 
         meta.contentLength = file.size
 
         val extension = file.originalFilename?.let { it.substring(it.lastIndexOf(".") + 1) }
-            ?: throw CustomError(ErrorDetail.FILE_EXTENSION_NOT_PROVIDED)
+            ?: throw CustomError(ErrorStatus.FILE_EXTENSION_NOT_PROVIDED)
 
         val key = "$directory/${UUID.randomUUID()}_${System.currentTimeMillis()}.$extension"
         file.inputStream.use {

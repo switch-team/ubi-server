@@ -22,7 +22,7 @@ class ExceptionHandlerFilter : OncePerRequestFilter() {
         } catch (e: CustomError) {
             response.status = e.reason.status.value()
             response.addHeader("Content-Type", "application/json")
-            response.writer.write(mapper.writeValueAsString(GuidedResponseBuilder(e.reason.status, e.reason.message).noData()))
+            response.writer.write(mapper.writeValueAsString(GuidedResponseBuilder(e.reason, e.reason.message).noData()))
             return
         }
     }
