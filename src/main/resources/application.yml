@@ -1,4 +1,8 @@
 spring:
+  rsocket:
+    server:
+      mapping-path: "/rsocket"
+      transport: "tcp" # gigachad
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/ubi
@@ -14,6 +18,7 @@ jwt:
   token-expires-at: 14515200
 server:
   port: 8080
+
 
 cloud:
   aws:

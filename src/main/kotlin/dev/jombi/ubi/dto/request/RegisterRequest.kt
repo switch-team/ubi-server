@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated
 @Validated
 data class RegisterRequest(
     @field:NotBlank(message = "Must not be blank: phone")
+    @field:Pattern(regexp = "[-0-9]{10,13}")
     val phone: String,
     @field:NotBlank(message = "Must not be blank: email")
     @field:Email(message = "email is must be email format")

@@ -7,7 +7,7 @@ enum class ErrorStatus(val message: String, override val statusCode: Int, val st
     EMAIL_ALREADY_EXISTS("Email is already registered.", 102),
     PHONE_ALREADY_EXISTS("Phone is already registered.", 102), // 102: auth conflict
 
-    USER_NOT_FOUND("User not found.", 201),
+    USER_NOT_FOUND("User not found.", 201, HttpStatus.UNAUTHORIZED),
     USER_ALREADY_EXISTS("User already exists.", 202),
 
     USER_IS_NOT_FRIEND("This user is not friend or requested.", 301),
@@ -25,6 +25,7 @@ enum class ErrorStatus(val message: String, override val statusCode: Int, val st
     EXPIRED_TOKEN("Token is expired.", 901, HttpStatus.UNAUTHORIZED),
     FILE_EXTENSION_NOT_PROVIDED("File extension is not provided.", 902, HttpStatus.BAD_REQUEST),
     MISSING_PARAMETER("Missing Parameter.", 903, HttpStatus.BAD_REQUEST),
+    NOT_SUPPORTED_CONTENT_TYPE("Content type %s is not supported.", 903, HttpStatus.BAD_REQUEST),
     INVALID_REQUEST_METHOD("Invalid request method.", 904, HttpStatus.BAD_REQUEST),
     INTERNAL_SERVER_ERROR("An error has occurred.", 999, HttpStatus.INTERNAL_SERVER_ERROR),
 

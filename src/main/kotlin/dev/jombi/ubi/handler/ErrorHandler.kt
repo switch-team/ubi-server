@@ -5,10 +5,13 @@ import dev.jombi.ubi.util.response.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MultipartException
 
 @RestControllerAdvice
 class ErrorHandler {
@@ -55,6 +58,16 @@ class ErrorHandler {
             )
         )
 
+
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    protected fun handleException(e: MissingServletRequestParameterException) =
+        ResponseEntity.status(400).body(
+            GuidedResponseBuilder(
+                ErrorStatus.MISSING_PARAMETER,
+                "query parameter is required: ${e.parameterName}"
+            ).noData()
+        )
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     protected fun handleException(e: MethodArgumentNotValidException) =
         ResponseEntity.status(400).body(
@@ -63,4 +76,15 @@ class ErrorHandler {
                 e.bindingResult.fieldError?.defaultMessage ?: "default"
             ).noData()
         )
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
+    protected fun handleException(e: HttpMediaTypeNotSupportedException) =
+        ResponseEntity.status(ErrorStatus.NOT_SUPPORTED_CONTENT_TYPE.status).body(
+            GuidedResponseBuilder(
+                ErrorStatus.NOT_SUPPORTED_CONTENT_TYPE,
+                ErrorStatus.NOT_SUPPORTED_CONTENT_TYPE.message.format(e.contentType?.toString() ?: "undefined")
+            ).noData()
+        )
+
+//    @ExceptionHandler(MultipartException::class)
 }

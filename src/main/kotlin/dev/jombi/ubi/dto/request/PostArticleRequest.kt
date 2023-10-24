@@ -9,5 +9,9 @@ data class PostArticleRequest(
     val title: String,
     @field:NotNull
     @field:NotBlank(message = "Must not be blank: content")
-    val content: String
+    val content: String,
+    @field:NotNull
+    val latitude: Double,
+    @field:NotNull
+    val longitude: Double
 )
