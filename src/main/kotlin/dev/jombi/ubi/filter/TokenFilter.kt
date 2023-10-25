@@ -15,23 +15,12 @@ class TokenFilter(private val tokenFactory: TokenFactory, @Value("\${jwt.header}
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         request as HttpServletRequest
 
-        extractToken(request)?.let {
+        request.getHeader(header)?.let {
             tokenFactory.validateToken(it)
             val auth = tokenFactory.getAuthenticationByToken(it)
             SecurityContextHolder.getContext().authentication = auth
         }
 
         chain.doFilter(request, response)
-    }
-
-    private fun extractToken(request: HttpServletRequest): String? {
-        try {
-            val header = request.getHeader(header)
-            if (header.isNotBlank() && header.lowercase().startsWith("bearer "))
-                return header.drop(7)
-        } catch (e: Exception) {
-            //
-        }
-        return null
     }
 }

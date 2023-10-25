@@ -8,8 +8,13 @@ import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.ArticleRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
+import org.loverde.geographiccoordinate.Latitude
+import org.loverde.geographiccoordinate.Longitude
+import org.loverde.geographiccoordinate.Point
+import org.loverde.geographiccoordinate.calculator.DistanceCalculator
 import org.springframework.stereotype.Service
 import java.net.URL
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -24,6 +29,27 @@ class ArticleService(val articleRepository: ArticleRepository) {
         articleRepository.save(article.copy(likedUser = article.likedUser + user))
     }
 
+    fun getArticles(point: Point, distanceMeter: Double): List<ArticleTitleAndDateResponse> {
+        val oneDayBefore = LocalDateTime.now().minusDays(1)
+        return articleRepository.articlesDate(oneDayBefore)
+            .filter {
+                DistanceCalculator.distance(
+                    DistanceCalculator.Unit.METERS,
+                    Point(Latitude(it.latitude), Longitude(it.longitude)),
+                    point
+                ) <= distanceMeter
+            }
+            .map {
+                ArticleTitleAndDateResponse(
+                    it.id,
+                    it.title,
+                    it.date,
+                    it.latitude,
+                    it.longitude,
+                    it.thumbnailImage?.url?.let { u -> URL(u) })
+            }
+    }
+
     fun viewMyArticleList(user: User): List<ArticleTitleAndDateResponse> {
         val articles = articleRepository.getArticlesByWriter(user)
         if (articles.isEmpty()) return emptyList()
@@ -32,6 +58,8 @@ class ArticleService(val articleRepository: ArticleRepository) {
                 it.id,
                 it.title,
                 it.date,
+                it.latitude,
+                it.longitude,
                 it.thumbnailImage?.url?.let { u -> URL(u) })
         }
     }
@@ -56,11 +84,20 @@ class ArticleService(val articleRepository: ArticleRepository) {
     }
 
 
-    fun postArticle(title: String, content: String, user: User, file: UploadedFile?) {
+    fun postArticle(
+        title: String,
+        content: String,
+        latitude: Double,
+        longitude: Double,
+        user: User,
+        file: UploadedFile?
+    ) {
         val article = Article(
             title = title, // don't get request object directly
             content = content,
             writer = user,
+            latitude = latitude,
+            longitude = longitude,
             thumbnailImage = file
         )
         articleRepository.save(article)

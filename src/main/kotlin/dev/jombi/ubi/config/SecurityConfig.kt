@@ -31,7 +31,8 @@ class SecurityConfig(private val tokenFilter: TokenFilter, private val ehFilter:
                 it
                     .requestMatchers("/test/**").permitAll() // FIXME: It's test implementation. you need to remove when release
                     .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/auth/login").permitAll()
+                    .requestMatchers("/auth/register").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement {

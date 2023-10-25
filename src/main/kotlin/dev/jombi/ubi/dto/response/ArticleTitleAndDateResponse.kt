@@ -9,5 +9,7 @@ data class ArticleTitleAndDateResponse(
     val id: UUID,
     val title: String,
     val date: LocalDateTime,
+    val latitude: Double,
+    val longitude: Double,
     val thumbnailImage: URL?
 )

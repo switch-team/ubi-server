@@ -3,6 +3,7 @@ package dev.jombi.ubi.util.jwt
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
 import io.jsonwebtoken.*
+import io.jsonwebtoken.io.DecodingException
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SecurityException
 import org.springframework.beans.factory.InitializingBean
@@ -69,6 +70,8 @@ class TokenFactory(
         } catch (e: UnsupportedJwtException) {
             throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         } catch (e: IllegalArgumentException) {
+            throw CustomError(ErrorStatus.MALFORMED_TOKEN)
+        } catch (e: DecodingException) {
             throw CustomError(ErrorStatus.MALFORMED_TOKEN)
         }
     }
