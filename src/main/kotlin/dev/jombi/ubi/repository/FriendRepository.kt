@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface FriendRepository : JpaRepository<Friend, FriendKey> {
+    @Query("SELECT COUNT(f) FROM Friend f WHERE (f.sender = :user OR f.receiver = :user)")
+    fun countFriends(user: User): Int
     @Query("SELECT f FROM Friend f WHERE (f.sender = :user OR f.receiver = :user) AND (f.sender = :friend OR f.receiver = :friend)")
     fun findFriendByTwoUser(@Param("user") user: User, @Param("friend") f: User): Friend?
     @Query("SELECT f FROM Friend f WHERE (f.sender = :user OR f.receiver = :user) AND f.state = :state")

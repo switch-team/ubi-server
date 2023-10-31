@@ -14,12 +14,13 @@ import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
 
-class GEOWebSocketHandler(val handler: PacketHandler) : WebSocketHandler {
+class GEOWebSocketHandler(private val handler: PacketHandler) : WebSocketHandler {
     private val LOGGER = LoggerFactory.getLogger(GEOWebSocketHandler::class.java)
     private val MAPPER = jacksonObjectMapper()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         InMemoryWebSocketStorage.add(session)
+
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
@@ -32,6 +33,7 @@ class GEOWebSocketHandler(val handler: PacketHandler) : WebSocketHandler {
         val strData = n.data?.let{ MAPPER.writeValueAsString(it) }
         try {
             when (n.type) {
+                MessageType.REMOVE_ASSEMBLE -> handler.handleAssembleRemove(session)
                 MessageType.HOST_ASSEMBLE -> handler.handleAssembleJoin(session, MAPPER.readValue(strData ?: return))
                 MessageType.INVITE_ASSEMBLE -> handler.handleAssembleInvite(session, MAPPER.readValue(strData ?: return))
                 MessageType.LIST_ASSEMBLE -> handler.handleAssembleList(session)

@@ -4,6 +4,7 @@ import dev.jombi.ubi.dto.Profile
 import dev.jombi.ubi.dto.request.ModifyProfileRequest
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.service.FileService
+import dev.jombi.ubi.service.FriendService
 import dev.jombi.ubi.service.UserService
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
@@ -16,16 +17,28 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.net.URL
 import java.security.Principal
 import java.util.*
 
 @RestController
 @RequestMapping("/user")
-class UserController(val service: UserService, val fileService: FileService) {
+class UserController(val service: UserService, val fileService: FileService, val friendService: FriendService) {
     @GetMapping("/profile")
     fun fetchProfile(p: Principal): ResponseEntity<GuidedResponse<Profile>> {
-        val profile = service.getProfileById(UUID.fromString(p.name))
-        return ResponseEntity.ok(GuidedResponseBuilder {}.build(profile))
+        val u = UUID.fromString(p.name)
+        val user = service.getUserById(u)
+        val count = friendService.friendSizeByUser(user)
+        return ResponseEntity.ok(
+            GuidedResponseBuilder {}.build(
+                Profile(
+                    user.name,
+                    user.phone,
+                    user.email,
+                    count,
+                    user.profileImage?.url?.let { URL(it) })
+            )
+        )
     }
 
     @PatchMapping("/profile")
@@ -42,7 +55,7 @@ class UserController(val service: UserService, val fileService: FileService) {
             request?.name,
             file?.let { fileService.upload(file, "profile") }
         )
-        return ResponseEntity.ok(GuidedResponseBuilder{}.noData())
+        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
     @GetMapping("/find")

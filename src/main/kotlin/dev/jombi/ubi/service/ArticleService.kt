@@ -30,8 +30,8 @@ class ArticleService(val articleRepository: ArticleRepository) {
     }
 
     fun getArticles(point: Point, distanceMeter: Double): List<ArticleTitleAndDateResponse> {
-        val oneDayBefore = LocalDateTime.now().minusDays(1)
-        return articleRepository.articlesDate(oneDayBefore)
+//        val oneDayBefore = LocalDateTime.now().minusDays(1)
+        return articleRepository.articlesDate()
             .filter {
                 DistanceCalculator.distance(
                     DistanceCalculator.Unit.METERS,

@@ -13,6 +13,6 @@ import java.util.UUID
 interface ArticleRepository: JpaRepository<Article, UUID> {
     fun getArticleById(id: UUID): Article?
     fun getArticlesByWriter(user: User): List<Article>
-    @Query("SELECT a FROM Article a WHERE a.date > :target")
-    fun articlesDate(@Param("target") n: LocalDateTime): List<Article>
+    @Query("SELECT a FROM Article a") //  WHERE a.date > :target
+    fun articlesDate(/*@Param("target") n: LocalDateTime*/): List<Article>
 }

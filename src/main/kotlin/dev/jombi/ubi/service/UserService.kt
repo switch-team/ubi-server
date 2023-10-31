@@ -14,11 +14,6 @@ import java.util.UUID
 @Suppress("unused")
 @Service
 class UserService(private val userRepository: UserRepository) {
-    fun getProfileById(uuid: UUID): Profile {
-        val user = userRepository.findUserById(uuid) ?: throw CustomError(ErrorStatus.USER_NOT_FOUND)
-        return Profile(user.name, user.phone, user.email, user.profileImage?.url?.let { URL(it) })
-    }
-
     fun updateProfile(user: User, phone: String?, email: String?, name: String?, file: UploadedFile?) {
         if (email != null) userRepository.getUserByEmail(email)?.let { throw CustomError(ErrorStatus.EMAIL_ALREADY_EXISTS) }
         if (phone != null) userRepository.getUserByPhone(phone)?.let { throw CustomError(ErrorStatus.PHONE_ALREADY_EXISTS) }

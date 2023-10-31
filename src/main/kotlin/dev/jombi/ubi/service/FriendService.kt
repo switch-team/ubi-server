@@ -13,8 +13,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class FriendService(val friendRepo: FriendRepository) {
+class FriendService(private val friendRepo: FriendRepository) {
     private val LOGGER = LoggerFactory.getLogger(FriendService::class.java)
+    fun friendSizeByUser(user: User): Int {
+        return friendRepo.countFriends(user)
+    }
+
     fun getFriendList(user: User): UserListResponse {
         val users = friendRepo.findUsersByUserAndState(user, FriendState.ACCEPTED)
         if (users.isEmpty())

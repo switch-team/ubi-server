@@ -2,6 +2,7 @@ package dev.jombi.ubi.websocket
 
 enum class MessageType(val isServerSide: Boolean = false, val isError: Boolean = false) {
     // CLIENT-SIDE Message
+    REMOVE_ASSEMBLE,
     HOST_ASSEMBLE,
     INVITE_ASSEMBLE,
     LIST_ASSEMBLE,
