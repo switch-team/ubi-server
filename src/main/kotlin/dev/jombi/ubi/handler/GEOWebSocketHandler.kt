@@ -33,14 +33,15 @@ class GEOWebSocketHandler(private val handler: PacketHandler) : WebSocketHandler
         val strData = n.data?.let{ MAPPER.writeValueAsString(it) }
         try {
             when (n.type) {
-                MessageType.REMOVE_ASSEMBLE -> handler.handleAssembleRemove(session)
-                MessageType.HOST_ASSEMBLE -> handler.handleAssembleJoin(session, MAPPER.readValue(strData ?: return))
+                MessageType.HOST_ASSEMBLE -> handler.handleAssembleCreate(session, MAPPER.readValue(strData ?: return))
                 MessageType.INVITE_ASSEMBLE -> handler.handleAssembleInvite(session, MAPPER.readValue(strData ?: return))
+                MessageType.CHECK_ASSEMBLE -> handler.handleAssembleCheck(session, MAPPER.readValue(strData ?: return))
+                MessageType.JOIN_ASSEMBLE -> handler.handleAssembleJoin(session, MAPPER.readValue(strData ?: return))
                 MessageType.LIST_ASSEMBLE -> handler.handleAssembleList(session)
                 else -> return session.close(CloseStatus.NOT_ACCEPTABLE)
             }
         } catch (e: MissingKotlinParameterException) {
-            // BadRequest handle
+            session.sendMessage(TextMessage(MAPPER.writeValueAsString(BaseMessage(MessageType.INVALID_VALUE, "Missing parameter: ${e.parameter.name}"))))
         }
     }
 
