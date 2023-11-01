@@ -16,7 +16,7 @@ class AssembleService(
     private val friend: FriendService
 ) {
     fun getAssembleInfo(id: UUID): Assemble {
-        return assembleRepo.queryAssembleByHostIs(id)
+        return assembleRepo.queryAssembleByHostIs(id) // id가 연 호스트 찾기
             ?: throw CustomError(ErrorStatus.NO_ASSEMBLE_ROOM)
     }
 
@@ -43,5 +43,10 @@ class AssembleService(
         if (n.status != InviteStatus.PENDING)
             throw CustomError(ErrorStatus.ALREADY_ANSWERED)
         assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
+    }
+
+    fun getAssembleListOnUser(id: UUID): List<Assemble> {
+        val assembles: List<Assemble> = assembleRepo.queryAssemblesByUsersInUserUUID(id)
+        assembles.
     }
 }
