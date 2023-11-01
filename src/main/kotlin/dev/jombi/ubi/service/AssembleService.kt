@@ -45,8 +45,8 @@ class AssembleService(
         assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
     }
 
-    fun getAssembleListOnUser(id: UUID): List<Assemble> {
-        val assembles: List<Assemble> = assembleRepo.queryAssemblesByUsersInUserUUID(id)
-        assembles.
-    }
+//    fun getAssembleListOnUser(id: UUID): List<Assemble> {
+//        val assembles: List<Assemble> = assembleRepo.queryAssemblesByUsersInUserUUID(id)
+//        assembles.map { it.users.map { it.status } }.
+//    }
 }
