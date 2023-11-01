@@ -8,5 +8,5 @@ import java.util.UUID
 data class AssembleUser(
     val user: UUID,
     val message: String,
-    val approved: InviteStatus,
+    val status: InviteStatus,
 )

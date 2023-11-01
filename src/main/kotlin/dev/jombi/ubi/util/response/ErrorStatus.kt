@@ -21,6 +21,12 @@ enum class ErrorStatus(val message: String, override val statusCode: Int, val st
     ALREADY_LIKED("You already liked this article.", 411, HttpStatus.BAD_REQUEST),
     CANT_LIKE_OWN_ARTICLE("You can't like your article.", 412, HttpStatus.BAD_REQUEST),
 
+
+    USER_ALREADY_JOINED_ASSEMBLE("User is already in your assemble", 501),
+    NO_ASSEMBLE_ROOM("No assemble rooms found.", 502),
+    NOT_ASSEMBLE_MEMBER("You are not assemble member.", 503),
+    ALREADY_ANSWERED("You already answered to this assemble.", 504),
+
     MALFORMED_TOKEN("Token is malformed.", 900, HttpStatus.UNAUTHORIZED),
     EXPIRED_TOKEN("Token is expired.", 901, HttpStatus.UNAUTHORIZED),
     FILE_EXTENSION_NOT_PROVIDED("File extension is not provided.", 902, HttpStatus.BAD_REQUEST),

@@ -1,4 +1,4 @@
-package dev.jombi.ubi.websocket.request
+package dev.jombi.ubi.util.state
 
 enum class InviteStatus {
     PENDING, ACCEPTED, REJECTED

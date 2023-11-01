@@ -19,10 +19,14 @@ class FriendService(private val friendRepo: FriendRepository) {
         return friendRepo.countFriends(user)
     }
 
+    fun isUserFriend(user: User, target: User): Boolean {
+        return (friendRepo.findFriendByTwoUser(user, target) ?: return false).state == FriendState.ACCEPTED
+    }
+
     fun getFriendList(user: User): UserListResponse {
         val users = friendRepo.findUsersByUserAndState(user, FriendState.ACCEPTED)
         if (users.isEmpty())
-            throw CustomError(ErrorStatus.USER_DO_NOT_HAVE_FRIEND)
+            return UserListResponse(emptyList())
         val userMapNotMe = users.map { if (it.sender == user) it.receiver else it.sender }
 
         return UserListResponse(userMapNotMe.map { UserIdAndNameResponse(it.id.toString(), it.name) })
