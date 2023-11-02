@@ -11,6 +11,7 @@ import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.state.FriendState
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class FriendService(private val friendRepo: FriendRepository) {
@@ -19,8 +20,8 @@ class FriendService(private val friendRepo: FriendRepository) {
         return friendRepo.countFriends(user)
     }
 
-    fun isUserFriend(user: User, target: User): Boolean {
-        return (friendRepo.findFriendByTwoUser(user, target) ?: return false).state == FriendState.ACCEPTED
+    fun isUserFriend(user: User, target: UUID): Boolean {
+        return (friendRepo.findRelationshipById(user, target) ?: return false).state == FriendState.ACCEPTED
     }
 
     fun getFriendList(user: User): UserListResponse {
@@ -32,26 +33,22 @@ class FriendService(private val friendRepo: FriendRepository) {
         return UserListResponse(userMapNotMe.map { UserIdAndNameResponse(it.id.toString(), it.name) })
     }
 
-    fun getPending(user: User): List<PendingResponse> {
-        val invitedUsers = friendRepo.findUsersByUserAndState(user)
-        if (invitedUsers.isEmpty())
-            throw CustomError(ErrorStatus.USER_DO_NOT_HAVE_FRIEND)
+    fun getPending(user: User): List<UserIdAndNameResponse> {
+        val invitedUsers = friendRepo.findPendingRequests(user)
+//        if (invitedUsers.isEmpty())
+//            throw CustomError(ErrorStatus.USER_DO_NOT_HAVE_FRIEND)
         return invitedUsers.map {
-            PendingResponse(
-                UserIdAndNameResponse(
-                    it.sender.id.toString(),
-                    it.sender.name
-                ),
-                UserIdAndNameResponse(
-                    it.receiver.id.toString(),
-                    it.receiver.name
-                )
+            UserIdAndNameResponse(
+                it.sender.id.toString(),
+                it.sender.name
             )
         }
     }
 
 
     fun inviteFriend(sender: User, receiver: User) {
+        if (sender.id == receiver.id)
+            throw CustomError(ErrorStatus.NO_SELF_CONFIRM)
         val n = friendRepo.findFriendByTwoUser(sender, receiver)
             ?: return friendRepo.save(Friend(sender = sender, receiver = receiver, state = FriendState.PENDING)).let {}
         if (n.receiver == sender) acceptFriendRequest(receiver, sender)

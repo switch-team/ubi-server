@@ -32,6 +32,7 @@ class UserController(val service: UserService, val fileService: FileService, val
         return ResponseEntity.ok(
             GuidedResponseBuilder {}.build(
                 Profile(
+                    user.id,
                     user.name,
                     user.phone,
                     user.email,

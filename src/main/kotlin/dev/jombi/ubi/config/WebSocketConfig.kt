@@ -1,5 +1,6 @@
 package dev.jombi.ubi.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import org.springframework.context.annotation.Bean
@@ -15,14 +16,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocket
-class WebSocketConfig(private val handler: PacketHandler) : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
+class WebSocketConfig(private val handler: PacketHandler, private val mapper: ObjectMapper) : WebSocketConfigurer, WebSocketMessageBrokerConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(myHandler(), "/ws")
     }
 
     @Bean
     fun myHandler(): WebSocketHandler {
-        return GEOWebSocketHandler(handler)
+        return GEOWebSocketHandler(handler, mapper)
     }
 
 }

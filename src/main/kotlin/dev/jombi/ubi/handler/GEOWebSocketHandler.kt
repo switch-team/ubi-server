@@ -1,6 +1,7 @@
 package dev.jombi.ubi.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import dev.jombi.ubi.websocket.BaseMessage
@@ -14,34 +15,32 @@ import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
 
-class GEOWebSocketHandler(private val handler: PacketHandler) : WebSocketHandler {
+class GEOWebSocketHandler(private val handler: PacketHandler, private val mapper: ObjectMapper) : WebSocketHandler {
     private val LOGGER = LoggerFactory.getLogger(GEOWebSocketHandler::class.java)
-    private val MAPPER = jacksonObjectMapper()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         InMemoryWebSocketStorage.add(session)
-
+        handler.handleJoin(session)
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
         if (message !is TextMessage) return
-        val n = MAPPER.readValue(message.payload, BaseMessage::class.java)
+        val n = mapper.readValue(message.payload, BaseMessage::class.java)
         if (n.data != null && n.data !is Map<*, *>)
             session.close(CloseStatus.BAD_DATA)
         if (n.type.isServerSide)
             session.close(CloseStatus.BAD_DATA) // request must send client side type
-        val strData = n.data?.let{ MAPPER.writeValueAsString(it) }
+        val strData = n.data?.let{ mapper.writeValueAsString(it) }
         try {
             when (n.type) {
-                MessageType.HOST_ASSEMBLE -> handler.handleAssembleCreate(session, MAPPER.readValue(strData ?: return))
-                MessageType.INVITE_ASSEMBLE -> handler.handleAssembleInvite(session, MAPPER.readValue(strData ?: return))
-                MessageType.CHECK_ASSEMBLE -> handler.handleAssembleCheck(session, MAPPER.readValue(strData ?: return))
-                MessageType.JOIN_ASSEMBLE -> handler.handleAssembleJoin(session, MAPPER.readValue(strData ?: return))
-                MessageType.LIST_ASSEMBLE -> handler.handleAssembleList(session)
-                else -> return session.close(CloseStatus.NOT_ACCEPTABLE)
+                MessageType.SEND_LOCATION -> handler.handleSendLocation(session, mapper.readValue(strData ?: return))
+                else -> {} // does nothing
+//                else -> return session.close(CloseStatus.NOT_ACCEPTABLE)
             }
         } catch (e: MissingKotlinParameterException) {
-            session.sendMessage(TextMessage(MAPPER.writeValueAsString(BaseMessage(MessageType.INVALID_VALUE, "Missing parameter: ${e.parameter.name}"))))
+            // session.sendMessage(TextMessage(MAPPER.writeValueAsString(BaseMessage(MessageType.INVALID_VALUE, "Missing parameter: ${e.parameter.name}"))))
+        } catch (e: InvalidFormatException) {
+            //
         }
     }
 

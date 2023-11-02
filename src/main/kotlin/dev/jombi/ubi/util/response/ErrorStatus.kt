@@ -11,7 +11,7 @@ enum class ErrorStatus(val message: String, override val statusCode: Int, val st
     USER_ALREADY_EXISTS("User already exists.", 202),
 
     USER_IS_NOT_FRIEND("This user is not friend or requested.", 301),
-    NO_SELF_CONFIRM("You can't accept your request.", 302, HttpStatus.BAD_REQUEST),
+    NO_SELF_CONFIRM("You can't confirm yourself.", 302, HttpStatus.BAD_REQUEST),
     USER_DO_NOT_HAVE_FRIEND("This user don't have any friends.", 303),
     FRIEND_REQUEST_ALREADY_SENT("Friend request already sent.", 304, HttpStatus.BAD_REQUEST),
     USER_IS_ALREADY_FRIEND("User is already a friend.", 305, HttpStatus.BAD_REQUEST),
@@ -31,8 +31,9 @@ enum class ErrorStatus(val message: String, override val statusCode: Int, val st
     EXPIRED_TOKEN("Token is expired.", 901, HttpStatus.UNAUTHORIZED),
     FILE_EXTENSION_NOT_PROVIDED("File extension is not provided.", 902, HttpStatus.BAD_REQUEST),
     MISSING_PARAMETER("Missing Parameter.", 903, HttpStatus.BAD_REQUEST),
-    NOT_SUPPORTED_CONTENT_TYPE("Content type %s is not supported.", 903, HttpStatus.BAD_REQUEST),
+    NOT_SUPPORTED_CONTENT_TYPE("Content type '%s' is not supported.", 903, HttpStatus.BAD_REQUEST),
     INVALID_REQUEST_METHOD("Invalid request method.", 904, HttpStatus.BAD_REQUEST),
+    INVALID_PATH_VARIABLE("Invalid path variable.", 905, HttpStatus.BAD_REQUEST),
     INTERNAL_SERVER_ERROR("An error has occurred.", 999, HttpStatus.INTERNAL_SERVER_ERROR),
 
 }

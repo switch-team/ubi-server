@@ -5,4 +5,4 @@ data class UserIdAndNameResponse(
     val name: String
 )
 
-data class PendingResponse(val sender: UserIdAndNameResponse, val receiver: UserIdAndNameResponse)
+data class PendingResponse(val sender: UserIdAndNameResponse/*, val receiver: UserIdAndNameResponse*/)

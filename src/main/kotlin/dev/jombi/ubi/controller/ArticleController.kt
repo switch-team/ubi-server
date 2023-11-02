@@ -6,6 +6,8 @@ import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.service.ArticleService
 import dev.jombi.ubi.service.FileService
 import dev.jombi.ubi.service.UserService
+import dev.jombi.ubi.util.response.CustomError
+import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import jakarta.validation.Valid
@@ -82,8 +84,13 @@ class ArticleController(
 
     @DeleteMapping("/{id}")
     fun deleteArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
+        val uuid = try {
+            UUID.fromString(id)
+        } catch (e: IllegalArgumentException) {
+            throw CustomError(ErrorStatus.INVALID_PATH_VARIABLE)
+        }
         val user = userService.getUserById(UUID.fromString(p.name))
-        articleService.deleteArticle(UUID.fromString(id), user)
+        articleService.deleteArticle(uuid, user)
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 }
