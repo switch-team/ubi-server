@@ -36,6 +36,12 @@ class AssembleController(val assembleService: AssembleService, val userService: 
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 
+    @GetMapping
+    fun list(p: Principal): ResponseEntity<GuidedResponse<Any>>{
+        val result = assembleService.getAssembleListOnUser(UUID.fromString(p.name))
+        return ResponseEntity.ok(GuidedResponseBuilder {  }.build(result))
+    }
+
 //    @PostMapping("/{id}")
 //    fun reject(@PathVariable id: UUID, p: Principal): ResponseEntity<GuidedResponse<>> {
 //        val user = userService.getUserById(UUID.fromString(p.name))
