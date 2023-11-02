@@ -1,5 +1,5 @@
 package dev.jombi.ubi.util.state
 
 enum class InviteStatus {
-    PENDING, ACCEPTED, REJECTED
+    PENDING, ACCEPTED, REJECTED, REVERSEPENDING
 }

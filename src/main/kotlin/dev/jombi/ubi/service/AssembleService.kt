@@ -49,12 +49,39 @@ class AssembleService(
             )
         })
     }
-
+    // user 나 hostid 방제
     fun replyAssemble(user: User, hostId: UUID, isAccepted: Boolean): Assemble {
         val info = getAssembleInfo(hostId)
         val n = info.users.find { it.user == user.id } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
         if (n.status != InviteStatus.PENDING)
             throw CustomError(ErrorStatus.ALREADY_ANSWERED)
+        val state = if (isAccepted) InviteStatus.ACCEPTED else InviteStatus.REJECTED
+        return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
+    }
+
+    fun requestJoin(user: User, target: User, message: String): Assemble {
+        val assemble = getAssembleInfo(target.id)
+        if (assemble.host == user.id || assemble.users.any { it.user == user.id})
+            throw CustomError(ErrorStatus.USER_ALREADY_JOINED_ASSEMBLE)
+        if (!friend.isUserFriend(user, target.id))
+            throw CustomError(ErrorStatus.USER_IS_NOT_FRIEND)
+        return assembleRepo.save(assemble.let {
+            it.copy(
+                users = it.users + AssembleUser( // + = add
+                    user.id,
+                    message,
+                    InviteStatus.REVERSEPENDING
+                )
+            )
+        })
+    }
+    // user assemble판 사람 target join보넨사람
+    fun replyJoin(user: User, target: User , isAccepted: Boolean): Assemble {
+        val info = getAssembleInfo(user.id)
+        val n = info.users.find { it.user == target.id } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
+        if (n.status != InviteStatus.REVERSEPENDING)
+            throw CustomError(ErrorStatus.ALREADY_ANSWERED)
+        val state = if (isAccepted) InviteStatus.ACCEPTED else InviteStatus.REJECTED
         return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
     }
 }
