@@ -56,7 +56,7 @@ class AssembleService(
         if (n.status != InviteStatus.PENDING)
             throw CustomError(ErrorStatus.ALREADY_ANSWERED)
         val state = if (isAccepted) InviteStatus.ACCEPTED else InviteStatus.REJECTED
-        return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
+        return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = state)))
     }
 
     fun requestJoin(user: User, target: User, message: String): Assemble {
