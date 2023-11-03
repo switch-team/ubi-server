@@ -11,4 +11,5 @@ interface AssembleRepository : MongoRepository<Assemble, UUID> {
     fun queryAssembleByHostIs(host: UUID): Assemble?
     @Query("{\$or: [{ 'users.user': {\$in: [?0]} }, { 'host': ?0 }]}")
     fun queryRelatedAssemble(id: UUID): List<Assemble>
+
 }

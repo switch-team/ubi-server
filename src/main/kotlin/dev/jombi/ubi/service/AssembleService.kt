@@ -59,6 +59,14 @@ class AssembleService(
         return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = state)))
     }
 
+    // 친구가 연 assemble 찾기
+    fun getRelatedJoin(user: User): List<Assemble> {
+        val friendsId = friend.getFriendList(user).user.map { it.id }
+        val assemble = friendsId.mapNotNull { assembleRepo.queryAssembleByHostIs(UUID.fromString(it)) }
+        return assemble
+    }
+
+    // user가 host(친구)한테 참가요청
     fun requestJoin(user: User, target: User, message: String): Assemble {
         val assemble = getAssembleInfo(target.id)
         if (assemble.host == user.id || assemble.users.any { it.user == user.id})
@@ -75,13 +83,14 @@ class AssembleService(
             )
         })
     }
-    // user assemble판 사람 target join보넨사람
+    // host가 reply 함
+    // user가 host, target이 join보넨사람
     fun replyJoin(user: User, target: User , isAccepted: Boolean): Assemble {
         val info = getAssembleInfo(user.id)
         val n = info.users.find { it.user == target.id } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
         if (n.status != InviteStatus.REVERSEPENDING)
             throw CustomError(ErrorStatus.ALREADY_ANSWERED)
         val state = if (isAccepted) InviteStatus.ACCEPTED else InviteStatus.REJECTED
-        return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = InviteStatus.ACCEPTED)))
+        return assembleRepo.save(info.copy(users = (info.users - n) + n.copy(status = state)))
     }
 }

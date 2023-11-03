@@ -1,7 +1,7 @@
 package dev.jombi.ubi.controller
 
 import dev.jombi.ubi.dto.request.assemble.AssembleHostRequest
-import dev.jombi.ubi.dto.request.assemble.AssembleInviteRequest
+import dev.jombi.ubi.dto.request.assemble.AssembleInviteAndJoinRequest
 import dev.jombi.ubi.dto.request.assemble.AssembleJoinRequest
 import dev.jombi.ubi.entity.Assemble
 import dev.jombi.ubi.service.AssembleService
@@ -22,7 +22,7 @@ class AssembleController(private val service: AssembleService, private val userS
     @PostMapping("/invite")
     fun inviteAssemble(
         p: Principal,
-        @Valid @RequestBody request: AssembleInviteRequest
+        @Valid @RequestBody request: AssembleInviteAndJoinRequest
     ): ResponseEntity<GuidedResponse<Assemble>> {
         val user = userService.getUserById(UUID.fromString(p.name))
         val target = UUID.fromString(request.id)
@@ -75,5 +75,39 @@ class AssembleController(private val service: AssembleService, private val userS
         val user = userService.getUserById(UUID.fromString(p.name))
         val assembleInfo = service.replyAssemble(user, assembleHost, request.accept)
         return ResponseEntity.ok(GuidedResponseBuilder {}.build(assembleInfo))
+    }
+
+    @GetMapping("/join")
+    fun join(p: Principal): ResponseEntity<GuidedResponse<List<Assemble>>> {
+        val user = userService.getUserById(UUID.fromString(p.name))
+        return ResponseEntity.ok(GuidedResponseBuilder {  }.build(service.getRelatedJoin(user)))
+    }
+
+    @PostMapping("/join")
+    fun joinRequest(
+        p: Principal,
+        @Valid @RequestBody request: AssembleInviteAndJoinRequest
+    ): ResponseEntity<GuidedResponse<Assemble>> {
+        val user = userService.getUserById(UUID.fromString(p.name))
+        val target = userService.getUserById(UUID.fromString(request.id))
+        val assembleInfo = service.requestJoin(user, target, request.message ?: "")
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(assembleInfo))
+    }
+
+
+    @PostMapping("/join/{id}")
+    fun replyJoin(
+        p: Principal,
+        @PathVariable id: String,
+        @Valid @RequestBody request: AssembleJoinRequest
+    ): ResponseEntity<GuidedResponse<Assemble>> {
+        val assembleHost = userService.getUserById(UUID.fromString(p.name)) //host가 본인
+        val user = userService.getUserById( try {
+            UUID.fromString(id)
+        } catch (e: IllegalArgumentException) {
+            throw CustomError(ErrorStatus.INVALID_PATH_VARIABLE)
+        })
+        val assembleInfo = service.replyJoin(assembleHost, user, request.accept)
+        return ResponseEntity.ok(GuidedResponseBuilder {  }.build(assembleInfo))
     }
 }
