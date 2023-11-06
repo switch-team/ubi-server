@@ -8,12 +8,12 @@ import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.state.InviteStatus
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class AssembleService(
     private val assembleRepo: AssembleRepository,
-    private val friend: FriendService
+    private val friend: FriendService,
 ) {
     private fun getAssembleInfo(id: UUID): Assemble {
         return assembleRepo.queryAssembleByHostIs(id)
@@ -49,7 +49,7 @@ class AssembleService(
             )
         })
     }
-    // user 나 hostid 방제
+    // user 나 hostid 방장
     fun replyAssemble(user: User, hostId: UUID, isAccepted: Boolean): Assemble {
         val info = getAssembleInfo(hostId)
         val n = info.users.find { it.user == user.id } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
@@ -62,18 +62,17 @@ class AssembleService(
     // 친구가 연 assemble 찾기
     fun getRelatedJoin(user: User): List<Assemble> {
         val friendsId = friend.getFriendList(user).user.map { it.id }
-        val assemble = friendsId.mapNotNull { assembleRepo.queryAssembleByHostIs(UUID.fromString(it)) }
-        return assemble
+        return friendsId.mapNotNull { assembleRepo.queryAssembleByHostIs(UUID.fromString(it)) }
     }
 
     // user가 host(친구)한테 참가요청
-    fun requestJoin(user: User, target: User, message: String): Assemble {
-        val assemble = getAssembleInfo(target.id)
-        if (assemble.host == user.id || assemble.users.any { it.user == user.id})
+    fun requestJoin(user: User, target: UUID, message: String): Assemble {
+        val join = getAssembleInfo(target)
+        if (join.host == user.id || join.users.any { it.user == user.id})
             throw CustomError(ErrorStatus.USER_ALREADY_JOINED_ASSEMBLE)
-        if (!friend.isUserFriend(user, target.id))
+        if (!friend.isUserFriend(user, target))
             throw CustomError(ErrorStatus.USER_IS_NOT_FRIEND)
-        return assembleRepo.save(assemble.let {
+        return assembleRepo.save(join.let {
             it.copy(
                 users = it.users + AssembleUser( // + = add
                     user.id,
@@ -84,10 +83,10 @@ class AssembleService(
         })
     }
     // host가 reply 함
-    // user가 host, target이 join보넨사람
-    fun replyJoin(user: User, target: User , isAccepted: Boolean): Assemble {
+    // user가 host, target이 join보낸 사람
+    fun replyJoin(user: User, target: UUID , isAccepted: Boolean): Assemble {
         val info = getAssembleInfo(user.id)
-        val n = info.users.find { it.user == target.id } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
+        val n = info.users.find { it.user == target } ?: throw CustomError(ErrorStatus.NOT_ASSEMBLE_MEMBER)
         if (n.status != InviteStatus.REVERSEPENDING)
             throw CustomError(ErrorStatus.ALREADY_ANSWERED)
         val state = if (isAccepted) InviteStatus.ACCEPTED else InviteStatus.REJECTED

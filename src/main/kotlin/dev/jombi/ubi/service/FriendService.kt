@@ -1,6 +1,5 @@
 package dev.jombi.ubi.service
 
-import dev.jombi.ubi.dto.response.PendingResponse
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.dto.response.UserListResponse
 import dev.jombi.ubi.entity.Friend
@@ -11,7 +10,7 @@ import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.state.FriendState
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class FriendService(private val friendRepo: FriendRepository) {

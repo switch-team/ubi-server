@@ -10,6 +10,7 @@ import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
+import dev.jombi.ubi.websocket.handler.PacketHandler
 import jakarta.validation.Valid
 import org.loverde.geographiccoordinate.Latitude
 import org.loverde.geographiccoordinate.Longitude
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import java.net.URL
 import java.security.Principal
 import java.util.*
 
@@ -33,7 +33,8 @@ import java.util.*
 class ArticleController(
     val articleService: ArticleService,
     val userService: UserService,
-    val fileService: FileService
+    val fileService: FileService,
+    val handler: PacketHandler
 ) {
     @PostMapping("/{id}/like")
     fun likeArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
@@ -63,13 +64,14 @@ class ArticleController(
         p: Principal
     ): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUID.fromString(p.name))
-        articleService.postArticle(
+        val article = articleService.postArticle(
             request.title,
             request.content,
             request.latitude,
             request.longitude,
             user,
             file?.let { fileService.upload(file, "article") })
+        handler.handleNewArticle(user, article)
         return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
     }
 

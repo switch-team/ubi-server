@@ -14,7 +14,6 @@ import org.loverde.geographiccoordinate.Point
 import org.loverde.geographiccoordinate.calculator.DistanceCalculator
 import org.springframework.stereotype.Service
 import java.net.URL
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -91,7 +90,7 @@ class ArticleService(val articleRepository: ArticleRepository) {
         longitude: Double,
         user: User,
         file: UploadedFile?
-    ) {
+    ): Article {
         val article = Article(
             title = title, // don't get request object directly
             content = content,
@@ -100,7 +99,7 @@ class ArticleService(val articleRepository: ArticleRepository) {
             longitude = longitude,
             thumbnailImage = file
         )
-        articleRepository.save(article)
+        return articleRepository.save(article)
     }
 
     fun deleteArticle(id: UUID, user: User) {

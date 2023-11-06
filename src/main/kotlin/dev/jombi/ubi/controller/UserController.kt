@@ -37,7 +37,8 @@ class UserController(val service: UserService, val fileService: FileService, val
                     user.phone,
                     user.email,
                     count,
-                    user.profileImage?.url?.let { URL(it) })
+                    user.profileImage?.url?.let { URL(it) }
+                )
             )
         )
     }

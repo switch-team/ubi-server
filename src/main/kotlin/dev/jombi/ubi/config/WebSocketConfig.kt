@@ -1,16 +1,14 @@
 package dev.jombi.ubi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mongodb.client.MongoClient
-import com.mongodb.client.MongoClients
+import dev.jombi.ubi.handler.GEOWebSocketHandler
+import dev.jombi.ubi.websocket.handler.PacketHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.config.annotation.EnableWebSocket
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
-import dev.jombi.ubi.handler.GEOWebSocketHandler
-import dev.jombi.ubi.websocket.handler.PacketHandler
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 
 

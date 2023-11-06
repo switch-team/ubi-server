@@ -1,6 +1,5 @@
 package dev.jombi.ubi.service
 
-import dev.jombi.ubi.dto.Profile
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.entity.UploadedFile
 import dev.jombi.ubi.entity.User
@@ -8,8 +7,7 @@ import dev.jombi.ubi.repository.UserRepository
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
 import org.springframework.stereotype.Service
-import java.net.URL
-import java.util.UUID
+import java.util.*
 
 @Suppress("unused")
 @Service
