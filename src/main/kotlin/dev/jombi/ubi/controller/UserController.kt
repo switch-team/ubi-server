@@ -6,27 +6,22 @@ import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.service.FileService
 import dev.jombi.ubi.service.FriendService
 import dev.jombi.ubi.service.UserService
+import dev.jombi.ubi.util.UUIDSafe
 import dev.jombi.ubi.util.response.GuidedResponse
 import dev.jombi.ubi.util.response.GuidedResponseBuilder
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.net.URL
 import java.security.Principal
-import java.util.*
 
 @RestController
 @RequestMapping("/user")
 class UserController(val service: UserService, val fileService: FileService, val friendService: FriendService) {
     @GetMapping("/profile")
     fun fetchProfile(p: Principal): ResponseEntity<GuidedResponse<Profile>> {
-        val u = UUID.fromString(p.name)
+        val u = UUIDSafe(p.name)
         val user = service.getUserById(u)
         val count = friendService.friendSizeByUser(user)
         return ResponseEntity.ok(
@@ -49,7 +44,7 @@ class UserController(val service: UserService, val fileService: FileService, val
         @RequestPart("data", required = false) @Valid request: ModifyProfileRequest?,
         p: Principal
     ): ResponseEntity<GuidedResponse<Any>> {
-        val user = service.getUserById(UUID.fromString(p.name))
+        val user = service.getUserById(UUIDSafe(p.name))
         service.updateProfile(
             user,
             request?.phone,
