@@ -67,4 +67,19 @@ tasks.withType<Test> {
 
 application {
 	mainClass.set("dev.jombi.ubi.UbiServerApplicationKt")
+	try {
+		val accessKey = project.property("ACCESS_KEY") ?: return@application
+		System.setProperty("ACCESS_KEY", accessKey.toString())
+	} catch (e: Exception) {}
+	try {
+		val secretKey = project.property("SECRET_KEY") ?: return@application
+		System.setProperty("SECRET_KEY", secretKey.toString())
+	} catch (e: Exception) {}
+	try {
+		val dataSourcePassword = project.property("DATASOURCE_PASSWORD") ?: return@application
+		System.setProperty("DATASOURCE_PASSWORD", dataSourcePassword.toString())
+	} catch (e: Exception) {}
+
+
+
 }
