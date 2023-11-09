@@ -21,7 +21,7 @@ jwt:
   secret: U3dpdGNoIFRlYW0gaGFzIGZpdmUgdGVhbSBtZW1iZXIuIE5hbWVkICdMZWUgSmluc2lrJywgJ01vb24gR2FpbicsICdQYXJrIEp1bmh5dW4nLCAnTGltIEdldW0nLCAnUGFyayBKdXllb25nJy4=
   token-expires-at: 14515200
 server:
-  port: 8080
+  port: 20701
   tomcat:
     max-swallow-size: 500000000
     max-http-form-post-size: 500000000
