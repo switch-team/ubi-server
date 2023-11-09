@@ -23,7 +23,7 @@ jwt:
 server:
   port: 20701
   ssl:
-    key-store: classpath:keystore.p12
+    key-store: classpath:jombi.dev.p12
     key-store-password: ${SSL_CERT_KEY}
     key-store-type: pkcs12
   tomcat:
