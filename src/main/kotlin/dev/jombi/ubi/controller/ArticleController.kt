@@ -1,6 +1,7 @@
 package dev.jombi.ubi.controller
 
 import dev.jombi.ubi.dto.request.PostArticleRequest
+import dev.jombi.ubi.dto.response.ArticleLikeResponse
 import dev.jombi.ubi.dto.response.ArticleTitleAndDateResponse
 import dev.jombi.ubi.dto.response.ViewArticleResponse
 import dev.jombi.ubi.service.ArticleService
@@ -14,6 +15,8 @@ import jakarta.validation.Valid
 import org.loverde.geographiccoordinate.Latitude
 import org.loverde.geographiccoordinate.Longitude
 import org.loverde.geographiccoordinate.Point
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -25,16 +28,23 @@ class ArticleController(
     val articleService: ArticleService,
     val userService: UserService,
     val fileService: FileService,
-    val handler: PacketHandler
+    val handler: PacketHandler,
 ) {
-    @PostMapping("/{id}/like")
+    val logger = LoggerFactory.getLogger(ArticleController::class.java)
     fun likeArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
         val user = userService.getUserById(UUIDSafe(p.name))
-        articleService.likeArticle(UUIDSafe(id), user)
-        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
+        val articleId = UUIDSafe(id)
+        articleService.likeArticle(user, articleId)
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(ArticleLikeResponse(articleId, true)))
+    }
+    @GetMapping("/{id}/like")
+    fun didILikedArticle(@PathVariable id: String, p: Principal): ResponseEntity<GuidedResponse<Any>> {
+        val user = userService.getUserById(UUIDSafe(p.name))
+        val articleId = UUIDSafe(id)
+        val didILiked = articleService.didILiked(user, articleId)
+        return ResponseEntity.ok(GuidedResponseBuilder {}.build(ArticleLikeResponse(articleId, didILiked)))
     }
 
-    // TODO: GEOCode the article lists, Time limit
     @GetMapping
     fun getArticles(@RequestParam latitude: Double, @RequestParam longitude: Double,  p: Principal): ResponseEntity<GuidedResponse<List<ArticleTitleAndDateResponse>>> {
         val articles = articleService.getArticles(Point(Latitude(latitude), Longitude(longitude)), 30 * 1000.0)
@@ -54,6 +64,8 @@ class ArticleController(
         @RequestPart(value = "data") @Valid request: PostArticleRequest,
         p: Principal
     ): ResponseEntity<GuidedResponse<Any>> {
+        logger.info(file?.contentType)
+
         val user = userService.getUserById(UUIDSafe(p.name))
         val article = articleService.postArticle(
             request.title,

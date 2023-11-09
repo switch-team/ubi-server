@@ -16,6 +16,7 @@ class GEOWebSocketHandler(private val handler: PacketHandler, private val mapper
     override fun afterConnectionEstablished(session: WebSocketSession) {
         InMemoryWebSocketStorage.add(session)
         handler.handleJoin(session)
+        LOGGER.info("Joined: ${session.principal?.name}")
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
@@ -45,6 +46,7 @@ class GEOWebSocketHandler(private val handler: PacketHandler, private val mapper
 
     override fun afterConnectionClosed(session: WebSocketSession, closeStatus: CloseStatus) {
         InMemoryWebSocketStorage.remove(session)
+        LOGGER.info("Left: ${session.principal?.name}")
     }
 
     override fun supportsPartialMessages() = false

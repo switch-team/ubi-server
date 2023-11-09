@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version "1.8.22"
 	kotlin("plugin.spring") version "1.8.22"
 	kotlin("plugin.jpa") version "1.8.22"
+	application
 }
 
 group = "dev.jombi"
@@ -62,4 +63,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+application {
+	mainClass.set("dev.jombi.ubi.UbiServerApplicationKt")
 }

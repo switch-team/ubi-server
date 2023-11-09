@@ -1,6 +1,7 @@
 package dev.jombi.ubi.controller
 
 import dev.jombi.ubi.dto.request.UserIdRequest
+import dev.jombi.ubi.dto.response.FriendDetailResponse
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.dto.response.UserListResponse
 import dev.jombi.ubi.service.FriendService
@@ -23,7 +24,7 @@ class FriendController(
     val handler: PacketHandler
 ) {
     @GetMapping
-    fun list(auth: Authentication): ResponseEntity<GuidedResponse<UserListResponse>> {
+    fun list(auth: Authentication): ResponseEntity<GuidedResponse<List<FriendDetailResponse>>> {
         val user = userService.getUserById(UUIDSafe(auth.name))
         val result = service.getFriendList(user)
         return ResponseEntity.ok(GuidedResponseBuilder { message = "found" }.build(result))

@@ -4,7 +4,6 @@ import dev.jombi.ubi.entity.Assemble
 import dev.jombi.ubi.entity.AssembleUser
 import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.mongo.AssembleRepository
-import dev.jombi.ubi.util.UUIDSafe
 import dev.jombi.ubi.util.response.CustomError
 import dev.jombi.ubi.util.response.ErrorStatus
 import dev.jombi.ubi.util.state.InviteStatus
@@ -62,8 +61,8 @@ class AssembleService(
 
     // 친구가 연 assemble 찾기
     fun getRelatedJoin(user: User): List<Assemble> {
-        val friendsId = friend.getFriendList(user).user.map { it.id }
-        return friendsId.mapNotNull { assembleRepo.queryAssembleByHostIs(UUIDSafe(it)) }
+        val friendsId = friend.getFriendList(user).map { it.id }
+        return friendsId.mapNotNull { assembleRepo.queryAssembleByHostIs(it) }
     }
 
     // user가 host(친구)한테 참가요청

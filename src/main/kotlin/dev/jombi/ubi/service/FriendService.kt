@@ -1,5 +1,6 @@
 package dev.jombi.ubi.service
 
+import dev.jombi.ubi.dto.response.FriendDetailResponse
 import dev.jombi.ubi.dto.response.UserIdAndNameResponse
 import dev.jombi.ubi.dto.response.UserListResponse
 import dev.jombi.ubi.entity.Friend
@@ -23,13 +24,13 @@ class FriendService(private val friendRepo: FriendRepository) {
         return (friendRepo.findRelationshipById(user, target) ?: return false).state == FriendState.ACCEPTED
     }
 
-    fun getFriendList(user: User): UserListResponse {
+    fun getFriendList(user: User): List<FriendDetailResponse> {
         val users = friendRepo.findUsersByUserAndState(user, FriendState.ACCEPTED)
         if (users.isEmpty())
-            return UserListResponse(emptyList())
+            return emptyList()
         val userMapNotMe = users.map { if (it.sender == user) it.receiver else it.sender }
 
-        return UserListResponse(userMapNotMe.map { UserIdAndNameResponse(it.id.toString(), it.name) })
+        return userMapNotMe.map { FriendDetailResponse(it.id, it.name, it.phone, it.email) }
     }
 
     fun getPending(user: User): List<UserIdAndNameResponse> {

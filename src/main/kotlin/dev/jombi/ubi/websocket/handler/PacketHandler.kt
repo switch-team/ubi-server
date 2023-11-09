@@ -9,7 +9,6 @@ import dev.jombi.ubi.entity.User
 import dev.jombi.ubi.repository.mongo.LocationRepository
 import dev.jombi.ubi.service.AssembleService
 import dev.jombi.ubi.service.FriendService
-import dev.jombi.ubi.util.UUIDSafe
 import dev.jombi.ubi.websocket.BaseMessage
 import dev.jombi.ubi.websocket.InMemoryWebSocketStorage
 import dev.jombi.ubi.websocket.MessageType
@@ -55,7 +54,7 @@ class PacketHandler(
     }
 
     fun handleNewArticle(userWhoSent: User, article: Article) { // send
-        val friends = friendService.getFriendList(userWhoSent).user.map { UUID.fromString(it.id) }
+        val friends = friendService.getFriendList(userWhoSent).map { it.id }
         InMemoryWebSocketStorage.broadcast(
             friends,
             build(

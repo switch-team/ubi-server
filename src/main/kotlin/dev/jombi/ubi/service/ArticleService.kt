@@ -18,7 +18,7 @@ import java.util.UUID
 
 @Service
 class ArticleService(val articleRepository: ArticleRepository) {
-    fun likeArticle(id: UUID, user: User) {
+    fun likeArticle(user: User, id: UUID) {
         val article = articleRepository.getArticleById(id)
             ?: throw CustomError(ErrorStatus.ARTICLE_NOT_FOUND)
         if (article.writer == user)
@@ -26,6 +26,14 @@ class ArticleService(val articleRepository: ArticleRepository) {
         if (article.likedUser.contains(user))
             throw CustomError(ErrorStatus.ALREADY_LIKED)
         articleRepository.save(article.copy(likedUser = article.likedUser + user))
+    }
+
+    fun didILiked(user: User, id: UUID): Boolean {
+        val article = articleRepository.getArticleById(id)
+            ?: throw CustomError(ErrorStatus.ARTICLE_NOT_FOUND)
+        if (article.writer == user)
+            throw CustomError(ErrorStatus.CANT_LIKE_OWN_ARTICLE)
+        return article.likedUser.contains(user)
     }
 
     fun getArticles(point: Point, distanceMeter: Double): List<ArticleTitleAndDateResponse> {
