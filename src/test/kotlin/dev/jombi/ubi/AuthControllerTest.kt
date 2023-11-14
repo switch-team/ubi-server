@@ -2,11 +2,11 @@ package dev.jombi.ubi
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.jombi.ubi.dto.request.LoginRequest
-import dev.jombi.ubi.dto.request.RegisterRequest
-import dev.jombi.ubi.dto.response.TokenResponse
-import dev.jombi.ubi.repository.UserRepository
-import dev.jombi.ubi.util.jwt.TokenFactory
+import dev.jombi.ubi.auth.dto.request.LoginRequest
+import dev.jombi.ubi.auth.dto.request.RegisterRequest
+import dev.jombi.ubi.auth.dto.response.TokenResponse
+import dev.jombi.ubi.user.repository.UserRepository
+import dev.jombi.ubi.auth.service.TokenFactory
 import dev.jombi.ubi.util.response.GuidedResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

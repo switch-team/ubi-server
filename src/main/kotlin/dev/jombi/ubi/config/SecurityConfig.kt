@@ -1,7 +1,7 @@
 package dev.jombi.ubi.config
 
-import dev.jombi.ubi.filter.ExceptionHandlerFilter
-import dev.jombi.ubi.filter.TokenFilter
+import dev.jombi.ubi.error.filter.ExceptionHandlerFilter
+import dev.jombi.ubi.auth.filter.TokenFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity

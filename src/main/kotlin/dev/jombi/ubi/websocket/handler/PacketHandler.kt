@@ -1,14 +1,14 @@
 package dev.jombi.ubi.websocket.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.jombi.ubi.dto.response.ViewArticleResponse
-import dev.jombi.ubi.entity.Article
-import dev.jombi.ubi.entity.Assemble
-import dev.jombi.ubi.entity.Location
-import dev.jombi.ubi.entity.User
-import dev.jombi.ubi.repository.mongo.LocationRepository
-import dev.jombi.ubi.service.AssembleService
-import dev.jombi.ubi.service.FriendService
+import dev.jombi.ubi.article.dto.response.ViewArticleResponse
+import dev.jombi.ubi.article.entity.Article
+import dev.jombi.ubi.assemble.entity.Assemble
+import dev.jombi.ubi.websocket.entity.Location
+import dev.jombi.ubi.user.entity.User
+import dev.jombi.ubi.websocket.repository.LocationRepository
+import dev.jombi.ubi.assemble.service.AssembleService
+import dev.jombi.ubi.friend.service.FriendService
 import dev.jombi.ubi.websocket.BaseMessage
 import dev.jombi.ubi.websocket.InMemoryWebSocketStorage
 import dev.jombi.ubi.websocket.MessageType

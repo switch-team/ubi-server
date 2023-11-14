@@ -1,0 +1,63 @@
+package dev.jombi.ubi.user.controller
+
+import dev.jombi.ubi.user.dto.response.Profile
+import dev.jombi.ubi.user.dto.request.ModifyProfileRequest
+import dev.jombi.ubi.user.dto.response.UserIdAndNameResponse
+import dev.jombi.ubi.file.service.FileService
+import dev.jombi.ubi.friend.service.FriendService
+import dev.jombi.ubi.user.service.UserService
+import dev.jombi.ubi.util.UUIDSafe
+import dev.jombi.ubi.util.response.GuidedResponse
+import dev.jombi.ubi.util.response.GuidedResponseBuilder
+import jakarta.validation.Valid
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.net.URL
+import java.security.Principal
+
+@RestController
+@RequestMapping("/user")
+class UserController(val service: UserService, val fileService: FileService, val friendService: FriendService) {
+    @GetMapping("/profile")
+    fun fetchProfile(p: Principal): ResponseEntity<GuidedResponse<Profile>> {
+        val u = UUIDSafe(p.name)
+        val user = service.getUserById(u)
+        val count = friendService.friendSizeByUser(user)
+        return ResponseEntity.ok(
+            GuidedResponseBuilder {}.build(
+                Profile(
+                    user.id,
+                    user.name,
+                    user.phone,
+                    user.email,
+                    count,
+                    user.profileImage?.url?.let { URL(it) }
+                )
+            )
+        )
+    }
+
+    @PatchMapping("/profile")
+    fun modifyProfile(
+        @RequestPart("profileImage", required = false) file: MultipartFile?,
+        @RequestPart("data", required = false) @Valid request: ModifyProfileRequest?,
+        p: Principal
+    ): ResponseEntity<GuidedResponse<Any>> {
+        val user = service.getUserById(UUIDSafe(p.name))
+        service.updateProfile(
+            user,
+            request?.phone,
+            request?.email,
+            request?.name,
+            file?.let { fileService.upload(file, "profile") }
+        )
+        return ResponseEntity.ok(GuidedResponseBuilder {}.noData())
+    }
+
+    @GetMapping("/find")
+    fun find(@RequestParam("id") request: String): ResponseEntity<GuidedResponse<UserIdAndNameResponse>> {
+        val result = service.findUser(request)
+        return ResponseEntity.ok(GuidedResponseBuilder { message = "found" }.build(result))
+    }
+}

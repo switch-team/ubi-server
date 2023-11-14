@@ -1,7 +1,7 @@
 package dev.jombi.ubi.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.jombi.ubi.handler.GEOWebSocketHandler
+import dev.jombi.ubi.websocket.GEOWebSocketHandler
 import dev.jombi.ubi.websocket.handler.PacketHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

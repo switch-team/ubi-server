@@ -1,7 +1,7 @@
 package dev.jombi.ubi.util
 
-import dev.jombi.ubi.util.response.CustomError
-import dev.jombi.ubi.util.response.ErrorStatus
+import dev.jombi.ubi.error.CustomError
+import dev.jombi.ubi.error.status.ErrorStatus
 import java.util.UUID
 
 fun UUIDSafe(uuid: String) = try {
